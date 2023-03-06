@@ -1,9 +1,16 @@
 from abc import ABC, abstractmethod
 from typing import List
 from games.action import Action
+from games.game_parameters import GameParameters
 
 class Observation(ABC):
     """Abstract class that will define the observation of the game"""
+
+    @property
+    @abstractmethod
+    def game_parameters(self) -> 'GameParameters':
+        """Returns the parameters of the game"""
+        pass
 
     @abstractmethod
     def clone(self) -> 'Observation':
