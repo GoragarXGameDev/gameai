@@ -7,7 +7,7 @@ class FitnessEvaluator(ABC):
     """Abstract class that will define the fitness evaluator for the game"""
 
     @abstractmethod
-    def evaluate(self, parameter: List[int], observation: 'Observation') -> float:
+    def evaluate(self, parameters: List[int], observation: 'Observation') -> float:
         """Return the fitness of the observation"""
         pass
 
