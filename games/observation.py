@@ -12,6 +12,12 @@ class Observation(ABC):
         """Returns the parameters of the game"""
         pass
 
+    @property
+    @abstractmethod
+    def action_points_left(self) -> int:
+        """Returns the number of action points left"""
+        pass
+
     @abstractmethod
     def clone(self) -> 'Observation':
         """Return a copy of the observation"""
