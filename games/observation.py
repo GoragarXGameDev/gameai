@@ -18,6 +18,24 @@ class Observation(ABC):
         """Returns the number of action points left"""
         pass
 
+    @property
+    @abstractmethod
+    def current_turn(self) -> int:
+        """Returns the current turn"""
+        pass
+
+    @property
+    @abstractmethod
+    def player_0_score(self) -> int:
+        """Returns the score of player 0"""
+        pass
+
+    @property
+    @abstractmethod
+    def player_1_score(self) -> int:
+        """Returns the score of player 1"""
+        pass
+
     @abstractmethod
     def clone(self) -> 'Observation':
         """Return a copy of the observation"""
