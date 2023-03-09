@@ -1,17 +1,17 @@
 from abc import ABC, abstractmethod
-from games.forward_model import ForwardModel
+from typing import Optional
 
 class GameParameters(ABC):
     """Abstract class that will define the parameters of the game"""
 
     @property
     @abstractmethod
-    def forward_model(self) -> 'ForwardModel':
-        """Returns the forward model of the game"""
+    def action_points_per_turn(self) -> int:
+        """Returns the number of action points per turn"""
         pass
 
     @property
     @abstractmethod
-    def action_points_per_turn(self) -> int:
-        """Returns the number of action points per turn"""
+    def seed(self) -> Optional[int]:
+        """Returns the seed of the game"""
         pass

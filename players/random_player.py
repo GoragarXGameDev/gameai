@@ -1,4 +1,5 @@
 from games.action import Action
+from games.forward_model import ForwardModel
 from games.observation import Observation
 from players.player import Player
 
@@ -8,7 +9,7 @@ class RandomPlayer(Player):
         super().__init__()
 
 # region Methods
-    def think(self, observation: 'Observation', budget: float) -> 'Action':
+    def think(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> 'Action':
         """Think about the next action to take."""
         return observation.get_random_action()
 # endregion

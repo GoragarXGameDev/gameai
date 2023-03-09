@@ -1,4 +1,5 @@
 from games.action import Action
+from games.forward_model import ForwardModel
 from games.observation import Observation
 from heuristics.heuristic import Heuristic
 from players.player import Player
@@ -10,7 +11,7 @@ class GreedyActionPlayer(Player):
         self.heuristic = heuristic
 
 # region Methods
-    def think(self, observation: 'Observation', budget: float) -> 'Action':
+    def think(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> 'Action':
         """Think about the next action to take."""
         best_reward = -math.inf
         best_action = None
@@ -18,7 +19,7 @@ class GreedyActionPlayer(Player):
         actions = observation.get_actions()
         for action in actions:
             observation.copy_into(current_observation)
-            observation.game_parameters.forward_model.step(current_observation, action)
+            forward_model.step(current_observation, action)
             reward = self.heuristic.get_reward(current_observation)
             if reward >= best_reward:
                 best_action = action

@@ -1,5 +1,6 @@
 from typing import Tuple, List
 from games.action import Action
+from games.forward_model import ForwardModel
 from games.observation import Observation
 from heuristics.heuristic import Heuristic
 from players.ntuple_bandit_online_evolution.bandit_1d import Bandit1D
@@ -11,7 +12,7 @@ import math
 import random
 import time
 
-class NTupleBanditOnlineEvolution(Player):
+class NTupleBanditOnlineEvolutionPlayer(Player):
     def __init__(self, heuristic: 'Heuristic', fitness: 'FitnessEvaluator', dimensions: List[int], c_value: float, neighbours: int, mutation_rate: float, initializations: int):
         """Entity that plays a Game by using the N-Tuple Bandit Online Evolution to model fitness and evolve a list of Action based on it, composing a turn."""
         self.c_value = c_value  # c parameter for UCB
@@ -28,14 +29,14 @@ class NTupleBanditOnlineEvolution(Player):
         self.bandit2D_amount = (self.dimension_amount * (self.dimension_amount - 1)) / 2  # amount of 2D bandits
 
         self.create_bandits()  # initialize the 1D and 2D bandits
-        self.fitness = FitnessEvaluator(heuristic)
+        self.fitness = fitness
         self.heuristic = heuristic
 
         self.currents = []  # list of the selected individuals
         self.turn = []  # selected turn to play
 
 # region Methods
-    def think(self, observation: 'Observation', budget: float) -> 'Action':
+    def think(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> 'Action':
         """Computes a list of Action for a complete turn using the N-Tuple Bandit Online Evolution and returns them in order each time it's called during the turn."""
         if observation.action_points_left == observation.game_parameters.action_points_per_turn:
             self.turn.clear()
@@ -60,10 +61,10 @@ class NTupleBanditOnlineEvolution(Player):
                 new_bandit = Bandit2D(self.c_value)
                 self.bandits2D.append(new_bandit)
 
-    def compute_turn(self, observation: 'Observation', budget: float, initializations: int) -> None:
+    def compute_turn(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float, initializations: int) -> None:
         """Computes a list of Action for a complete turn using the N-Tuple Bandit Online Evolution it as the turn."""
         t0 = time.time()
-        current, score = self.valid_initialization(observation, initializations)
+        current, score = self.valid_initialization(observation, forward_model, initializations)
         new_observation = observation.clone()
         while time.time() - t0 < budget - 0.01:
             population = self.get_neighbours(current, self.neighbours, self.mutation_rate)
@@ -76,7 +77,7 @@ class NTupleBanditOnlineEvolution(Player):
             self.update_bandits(new_current, new_score)
         self.turn = self.fitness.ntboe_to_turn(current)
 
-    def valid_initialization(self, observation: 'Observation', initializations: int) -> Tuple[List[int], float]:
+    def valid_initialization(self, observation: 'Observation', forward_model: 'ForwardModel', initializations: int) -> Tuple[List[int], float]:
         """Generates a given amount of complete valid turns randomly and adds their stats to the bandit-based model, returning the best turn found and the score it yielded."""
         population = []
         best_individual = None
@@ -84,7 +85,7 @@ class NTupleBanditOnlineEvolution(Player):
         new_observation = observation.clone()
         for i in range(initializations):
             observation.copy_into(new_observation)
-            individual = self.get_random_individual_valid(new_observation)
+            individual = self.get_random_individual_valid(new_observation, forward_model)
             population.append(individual)
             score = self.heuristic.get_reward(new_observation)
             self.update_bandits(individual, score)  # Update bandits
@@ -93,14 +94,14 @@ class NTupleBanditOnlineEvolution(Player):
                 best_individual = individual
         return best_individual, best_score
 
-    def get_random_individual_valid(self, observation: "Observation") -> List[int]:
+    def get_random_individual_valid(self, observation: 'Observation', forward_model: 'ForwardModel') -> List[int]:
         """Generates a random turn that is valid for the given observation. Note that the observation state after running this method will be the result of playing the turn."""
         individual = []
         for i in range(self.dimension_amount):
             act = observation.get_random_action()
             n = self.fitness.get_parameter_from_action(act)
             individual.append(n)
-            observation.game_parameters.forward_model.step(observation, act)
+            forward_model.step(observation, act)
         return individual
 
     def update_bandits(self, individual: List[int], score: float) -> None:

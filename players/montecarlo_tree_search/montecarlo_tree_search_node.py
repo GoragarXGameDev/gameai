@@ -1,5 +1,6 @@
 from typing import List, Optional
 from games.action import Action
+from games.forward_model import ForwardModel
 from games.observation import Observation
 from heuristics.heuristic import Heuristic
 import math
@@ -27,20 +28,20 @@ class MontecarloTreeSearchNode:
         """Adds a child to the `Node` child list."""
         self.children.append(child)
 
-    def extend(self) -> None:
+    def extend(self, forward_model: 'ForwardModel') -> None:
         """Extends the `Node` by generating a child for each possible action"""
         actions = self.observation.get_actions()
         for action in actions:
             new_observation = self.observation.clone()
-            self.observation.game_parameters.forward_model.step(new_observation, action)
+            forward_model.step(new_observation, action)
             self.children.append(MontecarloTreeSearchNode(new_observation, self.heuristic, action, self))
 
-    def rollout(self) -> float:
+    def rollout(self, forward_model: 'ForwardModel') -> float:
         """Performs a random rollout from the `Node` and returns the reward."""
         new_observation = self.observation.clone()
-        while not self.observation.game_parameters.forward_model.is_terminal(new_observation)\
-                and not self.observation.game_parameters.forward_model.is_turn_finished(new_observation):
-            self.observation.game_parameters.forward_model.step(new_observation, new_observation.get_random_action())
+        while not forward_model.is_terminal(new_observation)\
+                and not forward_model.is_turn_finished(new_observation):
+            forward_model.step(new_observation, new_observation.get_random_action())
         return self.heuristic.get_reward(new_observation)
 
     def backpropagate(self, reward: float) -> None:
@@ -61,7 +62,7 @@ class MontecarloTreeSearchNode:
         """Returns the average reward of the `Node`"""
         return self.reward / self.visits if self.visits > 0 else -math.inf
 
-    def get_best_child_by_average(self) -> "Optional[MontecarloTreeSearchNode]":
+    def get_best_child_by_average(self) -> Optional['MontecarloTreeSearchNode']:
         """Returns the best child of the `Node` by average reward."""
         if len(self.children) == 0:
             return None
@@ -102,8 +103,8 @@ class MontecarloTreeSearchNode:
         """Returns whether the `Node` is unvisited."""
         return self.visits == 0
 
-    def get_is_terminal(self) -> bool:
+    def get_is_terminal(self, forward_model: 'ForwardModel') -> bool:
         """Returns whether the `Node` is terminal (as in the game is over or the turn is finished)."""
-        return self.observation.game_parameters.forward_model.is_terminal(self.observation) \
-            or self.observation.game_parameters.forward_model.is_turn_finished(self.observation)
+        return forward_model.is_terminal(self.observation) \
+            or forward_model.is_turn_finished(self.observation)
 # endregion

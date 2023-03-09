@@ -1,13 +1,14 @@
 from abc import ABC, abstractmethod
 from typing import List
 from games.action import Action
+from games.forward_model import ForwardModel
 from games.observation import Observation
 
 class FitnessEvaluator(ABC):
     """Abstract class that will define the fitness evaluator for the game"""
 
     @abstractmethod
-    def evaluate(self, parameters: List[int], observation: 'Observation') -> float:
+    def evaluate(self, parameters: List[int], observation: 'Observation', forward_model: 'ForwardModel') -> float:
         """Return the fitness of the observation"""
         pass
 

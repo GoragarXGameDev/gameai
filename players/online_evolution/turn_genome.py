@@ -1,5 +1,6 @@
 from typing import List
 from games.action import Action
+from games.forward_model import ForwardModel
 from games.observation import Observation
 import random
 
@@ -10,16 +11,16 @@ class TurnGenome:
         self.reward = 0
 
 # region Methods
-    def random(self, observation: 'Observation'):
+    def random(self, observation: 'Observation', forward_model: 'ForwardModel'):
         """Fills up this genome with random valid actions"""
         self.actions.clear()
         self.reward = 0
-        while not observation.game_parameters.forward_model.is_terminal(observation) and not observation.game_parameters.forward_model.is_turn_finished(observation):
+        while not forward_model.is_terminal(observation) and not forward_model.is_turn_finished(observation):
             action = observation.get_random_action()
             self.actions.append(action)
-            observation.game_parameters.forward_model.step(observation, action)
+            forward_model.step(observation, action)
 
-    def crossover(self, parent_a: 'TurnGenome', parent_b: 'TurnGenome', observation: 'Observation'):
+    def crossover(self, parent_a: 'TurnGenome', parent_b: 'TurnGenome', observation: 'Observation', forward_model: 'ForwardModel'):
         """Fills up this genome with a crossover of the two parents"""
         self.reward = 0
         actions_count = min(observation.game_parameters.action_points_per_turn, len(self.actions))
@@ -45,9 +46,9 @@ class TurnGenome:
             if not added:
                 self.actions[i] = observation.get_random_action()
 
-            observation.game_parameters.forward_model.step(observation, self.actions[i])
+            forward_model.step(observation, self.actions[i])
 
-    def mutate_at_random_index(self, observation: 'Observation') -> None:
+    def mutate_at_random_index(self, observation: 'Observation', forward_model: 'ForwardModel') -> None:
         """Mutates this genome at a random action of the turn while keeping the whole turn valid. Note that the'Observation'state is not preserved."""
         mutation_index = random.randrange(len(self.actions))
         for i in range(len(self.actions)):
@@ -57,7 +58,7 @@ class TurnGenome:
                 if not observation.is_action_valid(self.actions[i]):
                     self.actions[i] = observation.get_random_action()
 
-            observation.game_parameters.forward_model.step(observation, self.actions[i])
+            forward_model.step(observation, self.actions[i])
 
     def clone(self) -> 'TurnGenome':
         """Returns a clone of this genome"""

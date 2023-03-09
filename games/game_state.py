@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Any, Dict
 from games.game_parameters import GameParameters
 from games.observation import Observation
 
@@ -37,4 +38,9 @@ class GameState(ABC):
     @abstractmethod
     def reset(self) -> None:
         """Resets the game state"""
+        pass
+
+    @abstractmethod
+    def get_state_info(self) -> Dict[str, Any]:
+        """Returns the information of the game state"""
         pass

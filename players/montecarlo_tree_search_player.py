@@ -1,11 +1,12 @@
 from games.action import Action
+from games.forward_model import ForwardModel
 from games.observation import Observation
 from heuristics.heuristic import Heuristic
 from players.montecarlo_tree_search.montecarlo_tree_search_node import MontecarloTreeSearchNode
 from players.player import Player
 import time
 
-class MCTSPlayer(Player):
+class MontecarloTreeSearchPlayer(Player):
     """Entity that plays a game by using the Monte Carlo Tree Search algorithm to choose all actions in a turn."""
     def __init__(self, heuristic: 'Heuristic', c_value: float):
         self.heuristic = heuristic
@@ -14,20 +15,20 @@ class MCTSPlayer(Player):
         super().__init__()
 
 # region Methods
-    def think(self, observation: 'Observation', budget: float) -> 'Action':
+    def think(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> 'Action':
         """Computes a list of actions for a complete turn using the Monte Carlo Tree Search algorithm and returns them in order each time it's called during the turn."""
-        if observation.action_points_left == observation.game_parameters.action_points_per_turn:
+        if observation.action_points_left == observation.game_parameters.action_points_per_turn():
             self.turn.clear()
-            self.compute_turn(observation, budget)
+            self.compute_turn(observation, forward_model, budget)
         if len(self.turn) == 0:
             return None
         return self.turn.pop(0)
 
-    def compute_turn(self, observation: 'Observation', budget: float) -> None:
+    def compute_turn(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> None:
         """Computes a list of action for a complete turn using the Monte Carlo Tree Search algorithm and sets it as the turn."""
         t0 = time.time()
         root = MontecarloTreeSearchNode(observation, self.heuristic, None)
-        root.extend()
+        root.extend(forward_model)
         current_node = root
 
         while time.time() - t0 < budget - 0.12:
@@ -35,10 +36,10 @@ class MCTSPlayer(Player):
             if best_child.get_amount_of_children() > 0:
                 current_node = best_child
             else:
-                if not best_child.get_is_unvisited() and not best_child.get_is_terminal():
-                    best_child.extend()
+                if not best_child.get_is_unvisited() and not best_child.get_is_terminal(forward_model):
+                    best_child.extend(forward_model)
                     best_child = best_child.get_random_child()
-                best_child.backpropagate(best_child.rollout())
+                best_child.backpropagate(best_child.rollout(forward_model))
                 current_node = root
 
         # retrieve the turn

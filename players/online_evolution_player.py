@@ -1,5 +1,6 @@
 from typing import List
 from games.action import Action
+from games.forward_model import ForwardModel
 from games.observation import Observation
 from heuristics.heuristic import Heuristic
 from players.online_evolution.turn_genome import TurnGenome
@@ -18,16 +19,16 @@ class OnlineEvolutionPlayer(Player):
         super().__init__()
 
 # region Methods
-    def think(self, observation: 'Observation', budget: float) -> 'Action':
+    def think(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> 'Action':
         """Computes a list of actions for a complete turn using the Online Evolution algorithm and returns them in order each time it's called during the turn."""
         if observation.action_points_left == observation.game_parameters.action_points_per_turn and len(self.turn) > 0:
             self.turn.clear()
-            self.compute_turn(observation, budget)
+            self.compute_turn(observation, forward_model, budget)
         if len(self.turn) == 0:
             return None
         return self.turn.pop(0)
 
-    def compute_turn(self, observation: 'Observation', budget: float) -> None:
+    def compute_turn(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> None:
         """Computes a list of action for a complete turn using the Online Evolution algorithm and sets it as the turn."""
         t0 = time.time()
         population: List['TurnGenome'] = []
@@ -38,7 +39,7 @@ class OnlineEvolutionPlayer(Player):
         for i in range(self.population_size):
             genome = TurnGenome()
             observation.copy_into(new_observation)
-            genome.random(new_observation)
+            genome.random(new_observation, forward_model)
             population.append(genome)
             killed.append(genome)
 
@@ -47,7 +48,7 @@ class OnlineEvolutionPlayer(Player):
             for genome in killed:
                 observation.copy_into(new_observation)
                 for action in genome.get_actions():
-                    observation.game_parameters.forward_model.step(new_observation, action)
+                    forward_model.step(new_observation, action)
                 genome.set_reward(self.heuristic.get_reward(new_observation))
 
             # kill the worst genomes
@@ -67,12 +68,12 @@ class OnlineEvolutionPlayer(Player):
 
                 # crossover
                 observation.copy_into(new_observation)
-                killed_genome.crossover(population[parent_a_index], population[parent_b_index], new_observation)
+                killed_genome.crossover(population[parent_a_index], population[parent_b_index], new_observation, forward_model)
 
                 # mutate
                 if random.random() < self.mutation_rate:
                     observation.copy_into(new_observation)
-                    killed_genome.mutate_at_random_index(new_observation)
+                    killed_genome.mutate_at_random_index(new_observation, forward_model)
 
         # select the best genome to use for the turn
         self.turn = population[0].get_actions()
