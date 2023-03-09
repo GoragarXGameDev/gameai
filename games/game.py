@@ -11,25 +11,11 @@ import sys
 import func_timeout
 
 class Game:
-    """Class that will define how to play the game"""
-    
-    @property
-    @abstractmethod
-    def game_state(self) -> 'GameState':
-        """Returns the `GameState` of the game"""
-        pass
-
-    @property
-    @abstractmethod
-    def save_file(self) -> Optional[TextIOWrapper]:
-        """Returns the file where the game is saved"""
-        pass
-
-    @property
-    @abstractmethod
-    def forward_model(self) -> 'ForwardModel':
-        """Returns the `ForwardModel` of the game"""
-        pass
+    def __init__(self, game_state: 'GameState', forward_model: 'ForwardModel', save_file: Optional[TextIOWrapper] = None) -> None:
+        """Class that will define how to play the game"""
+        self.game_state = game_state
+        self.forward_model = forward_model
+        self.save_file = save_file
 
 # region Methods
     def reset(self) -> None:
@@ -81,7 +67,7 @@ class Game:
         if verbose:
             print("")
             print("---------------------------------------- ")
-            print(f"Player {self.game_state.get_cur} [{player!s}] turn")
+            print(f"Player {self.game_state.get_current_turn()} [{player!s}] turn")
             print("---------------------------------------- ")
             print(f"{self.game_state}\n")
 
@@ -107,17 +93,17 @@ class Game:
                 action = self.get_random_action(observation)
 
             if verbose:
-                print(f"Player {self.game_state.current_turn} selects {action!s}.")
+                print(f"Player {self.game_state.get_current_turn()} selects {action!s}.")
 
             self.forward_model.step(self.game_state, action)
 
             if verbose:
-                print(f"Score: [{self.game_state.player_0_score}] - [{self.game_state.player_1_score}]")
+                print(f"Score: [{self.game_state.get_player_0_score()}] - [{self.game_state.get_player_1_score()}]")
             return action
 
     def think(self, player: 'Player', observation: 'Observation', budget: float) -> 'Action':
         """Requires the `Player` to decide, given an `Observation`, what `Action` to play and returns it."""
-        return player.think(observation, budget)
+        return player.think(observation, self.forward_model, budget)
 
     def get_random_action(self, observation: 'Observation') -> 'Action':
         """Returns a random valid `Action` for the state defined in the given `Observation`."""
@@ -130,19 +116,11 @@ class Game:
         """Sets the save file"""
         self.save_file = open(filename, "w") if filename is not None else None
 
-    def set_forward_model(self, forward_model: 'ForwardModel') -> None:
-        """Sets the `ForwardModel` of the game"""
-        self.forward_model = forward_model
-
-    def set_game_state(self, game_state: 'GameState') -> None:
-        """Sets the `GameState` of the game"""
-        self.game_state = game_state
-
     def get_winner(self) -> int:
         """Returns the index of the `Player` that is winning the `Game`."""
-        if self.game_state.player_0_score > self.game_state.player_1_score:
+        if self.game_state.get_player_0_score() > self.game_state.get_player_1_score():
             return 0
-        elif self.game_state.player_1_score > self.game_state.player_0_score:
+        elif self.game_state.get_player_1_score() > self.game_state.get_player_0_score():
             return 1
         else:
             return -1

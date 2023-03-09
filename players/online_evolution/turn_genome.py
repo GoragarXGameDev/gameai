@@ -23,7 +23,7 @@ class TurnGenome:
     def crossover(self, parent_a: 'TurnGenome', parent_b: 'TurnGenome', observation: 'Observation', forward_model: 'ForwardModel'):
         """Fills up this genome with a crossover of the two parents"""
         self.reward = 0
-        actions_count = min(observation.game_parameters.action_points_per_turn, len(self.actions))
+        actions_count = min(observation.get_game_parameters().get_action_points_per_turn(), len(self.actions))
         for i in range(actions_count):
             # choose a random parent and add action at index if valid, otherwise use the other parent
             added = False

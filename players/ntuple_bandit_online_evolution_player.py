@@ -38,14 +38,14 @@ class NTupleBanditOnlineEvolutionPlayer(Player):
 # region Methods
     def think(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> 'Action':
         """Computes a list of Action for a complete turn using the N-Tuple Bandit Online Evolution and returns them in order each time it's called during the turn."""
-        if observation.action_points_left == observation.game_parameters.action_points_per_turn:
+        if observation.get_action_points_left() == observation.get_game_parameters().get_action_points_per_turn():
             self.turn.clear()
             self.bandits1D.clear()
             self.bandits2D.clear()
             self.create_bandits()
             self.currents.clear()
             self.turn.clear()
-            self.compute_turn(observation, budget, self.initializations)
+            self.compute_turn(observation, forward_model, budget, self.initializations)
         return self.turn.pop(0)
 
     def create_bandits(self) -> None:

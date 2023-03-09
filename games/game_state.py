@@ -6,27 +6,23 @@ from games.observation import Observation
 class GameState(ABC):
     """Abstract class that will define the state of the game"""
 
-    @property
     @abstractmethod
-    def game_parameters(self) -> 'GameParameters':
+    def get_game_parameters(self) -> 'GameParameters':
         """Returns the parameters of the game"""
         pass
 
-    @property
     @abstractmethod
-    def current_turn(self) -> int:
+    def get_current_turn(self) -> int:
         """Returns the current turn"""
         pass
 
-    @property
     @abstractmethod
-    def player_0_score(self) -> int:
+    def get_player_0_score(self) -> int:
         """Returns the score of player 0"""
         pass
 
-    @property
     @abstractmethod
-    def player_1_score(self) -> int:
+    def get_player_1_score(self) -> int:
         """Returns the score of player 1"""
         pass
 

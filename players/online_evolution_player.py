@@ -21,7 +21,7 @@ class OnlineEvolutionPlayer(Player):
 # region Methods
     def think(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> 'Action':
         """Computes a list of actions for a complete turn using the Online Evolution algorithm and returns them in order each time it's called during the turn."""
-        if observation.action_points_left == observation.game_parameters.action_points_per_turn and len(self.turn) > 0:
+        if observation.get_action_points_left() == observation.get_game_parameters().get_action_points_per_turn() and len(self.turn) > 0:
             self.turn.clear()
             self.compute_turn(observation, forward_model, budget)
         if len(self.turn) == 0:

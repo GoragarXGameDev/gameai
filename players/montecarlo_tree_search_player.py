@@ -17,7 +17,7 @@ class MontecarloTreeSearchPlayer(Player):
 # region Methods
     def think(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> 'Action':
         """Computes a list of actions for a complete turn using the Monte Carlo Tree Search algorithm and returns them in order each time it's called during the turn."""
-        if observation.action_points_left == observation.game_parameters.action_points_per_turn():
+        if observation.get_action_points_left() == observation.get_game_parameters().get_action_points_per_turn():
             self.turn.clear()
             self.compute_turn(observation, forward_model, budget)
         if len(self.turn) == 0:
@@ -44,7 +44,7 @@ class MontecarloTreeSearchPlayer(Player):
 
         # retrieve the turn
         current_node = root
-        for i in range(observation.game_parameters.action_points_per_turn):
+        for i in range(observation.get_game_parameters().get_action_points_per_turn()):
             best_child = current_node.get_best_child_by_average()
             if best_child is None:
                 self.turn.append(None)

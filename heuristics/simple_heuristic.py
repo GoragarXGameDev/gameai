@@ -6,7 +6,7 @@ class SimpleHeuristic(Heuristic):
     
     def get_reward(self, observation: 'Observation'):
         """Returns a reward for the current player."""
-        if observation.current_turn == 0:
-            return observation.player_0_score - observation.player_1_score
+        if observation.get_current_turn() == 0:
+            return observation.get_player_0_score() - observation.get_player_1_score()
         else:
-            return observation.player_1_score - observation.player_0_score
+            return observation.get_player_1_score() - observation.get_player_0_score()
