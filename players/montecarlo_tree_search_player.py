@@ -55,5 +55,5 @@ class MontecarloTreeSearchPlayer(Player):
 
 # region Override
     def __str__(self):
-        return f"MCTSPlayer[{self.c_value}]"
+        return f"MontecarloTreeSearchPlayer[{self.c_value}]"
 # endregion

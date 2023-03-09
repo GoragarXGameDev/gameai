@@ -81,5 +81,5 @@ class OnlineEvolutionPlayer(Player):
 
 # region Override
     def __str__(self):
-        return f"OEPlayer[{self.population_size!s}][{self.mutation_rate!s}][{self.survival_rate!s}]"
+        return f"OnlineEvolutionPlayer[{self.population_size!s}][{self.mutation_rate!s}][{self.survival_rate!s}]"
 # endregion

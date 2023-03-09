@@ -30,5 +30,5 @@ class GreedyActionPlayer(Player):
 
 # region Override
     def __str__(self):
-        return "OSLAPlayer"
+        return "GreedyActionPlayer"
 # endregion

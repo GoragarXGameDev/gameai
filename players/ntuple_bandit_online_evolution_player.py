@@ -182,5 +182,5 @@ class NTupleBanditOnlineEvolutionPlayer(Player):
 
 # region Overrides
     def __str__(self):
-        return f"NTBEA[{self.c_value}][{self.neighbours}][{self.mutation_rate}][{self.initializations}]"
+        return f"NTuplrBanditOnlineEvolution[{self.c_value}][{self.neighbours}][{self.mutation_rate}][{self.initializations}]"
 # endregion
