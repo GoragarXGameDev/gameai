@@ -70,7 +70,7 @@ class NTupleBanditOnlineEvolutionPlayer(Player):
             population = self.get_neighbours(current, self.neighbours, self.mutation_rate)
             new_current = self.get_best_individual(population)
             observation.copy_into(new_observation)
-            new_score = self.fitness.evaluate(new_current, new_observation)
+            new_score = self.fitness.evaluate(new_current, new_observation, forward_model)
             if new_score > score:
                 current = new_current
                 score = new_score
@@ -182,5 +182,5 @@ class NTupleBanditOnlineEvolutionPlayer(Player):
 
 # region Overrides
     def __str__(self):
-        return f"NTuplrBanditOnlineEvolution[{self.c_value}][{self.neighbours}][{self.mutation_rate}][{self.initializations}]"
+        return f"NTupleBanditOnlineEvolution[{self.c_value}][{self.neighbours}][{self.mutation_rate}][{self.initializations}]"
 # endregion
