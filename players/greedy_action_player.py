@@ -8,6 +8,7 @@ import math
 class GreedyActionPlayer(Player):
     def __init__(self, heuristic: 'Heuristic'):
         """Player class implemented for Greedy Action players."""
+        super().__init__()
         self.heuristic = heuristic
 
 # region Methods
@@ -24,7 +25,8 @@ class GreedyActionPlayer(Player):
             if reward >= best_reward:
                 best_action = action
                 best_reward = reward
-        print(f"Best action: {best_action}")
+        if self.verbose:
+            print(f"Best action: {best_action}")
         return best_action
 # endregion
 
