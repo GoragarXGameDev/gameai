@@ -1,9 +1,10 @@
 from typing import Tuple, Union
 from copy import deepcopy
+from games import Action
 from games.hero_academy.heroac_card import HeroAcademyCard
 from games.hero_academy.heroac_unit import HeroAcademyUnit
 
-class HeroAcademyAction:
+class HeroAcademyAction(Action):
     def __init__(self, subject: Union['HeroAcademyUnit', 'HeroAcademyCard'], unit: 'HeroAcademyUnit' = None, position: Tuple[int, int] = None) -> None:
         """Actions stand for every possible action that can be taken per turn."""
         self.subject = subject

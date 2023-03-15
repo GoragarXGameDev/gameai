@@ -1,12 +1,13 @@
 from typing import Any, Dict, List, Tuple
-from games.tank_war.tankwar_game_parameters import TankWarGameParameters
-from games.tank_war.tankwar_observation import TankWarObservation
+from games import GameState
+from games.tank_war.tankwar_unit_type import TankWarUnitType
 from games.tank_war.tankwar_unit import TankWarUnit
 from games.tank_war.tankwar_unit_collection import TankWarUnitCollection
-from games.tank_war.tankwar_unit_type import TankWarUnitType
+from games.tank_war.tankwar_game_parameters import TankWarGameParameters
+from games.tank_war.tankwar_observation import TankWarObservation
 import random
 
-class TankWarGameState:
+class TankWarGameState(GameState):
     def __init__(self, game_parameters: 'TankWarGameParameters') -> None:
         """GameState class represents the state of the game."""
         self.game_parameters = game_parameters

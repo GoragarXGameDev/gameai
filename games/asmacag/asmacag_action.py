@@ -1,6 +1,7 @@
+from games import Action
 from games.asmacag.asmacag_card import AsmacagCard
 
-class AsmacagAction:
+class AsmacagAction(Action):
     """An `Action` describes the `Card` played and on what `Card` it has been played."""
 
     def __init__(self, played_card: 'AsmacagCard', board_card: 'AsmacagCard' = None):

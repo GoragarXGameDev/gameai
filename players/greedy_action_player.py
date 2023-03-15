@@ -1,8 +1,6 @@
-from games.action import Action
-from games.forward_model import ForwardModel
-from games.observation import Observation
-from heuristics.heuristic import Heuristic
-from players.player import Player
+from games import Action, Observation, ForwardModel
+from heuristics import Heuristic
+from players import Player
 import math
 
 class GreedyActionPlayer(Player):

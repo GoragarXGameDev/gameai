@@ -1,7 +1,7 @@
-from games.asmacag import AsmacagGameParameters, AsmacagForwardModel, AsmacagFitnessEvaluator, AsmacagGame
+from games.asmacag import AsmacagGameParameters, AsmacagForwardModel, AsmacagGame
 from heuristics import SimpleHeuristic
-from ntbea.ntbea import Ntbea
-from utils.GameEvaluatorOE import GameEvaluatorOE
+from utils import GameEvaluatorOE
+from ntbea import Ntbea
 import random
 
 

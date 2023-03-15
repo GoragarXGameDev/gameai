@@ -1,6 +1,7 @@
 from typing import Optional
+from games import GameParameters
 
-class TankWarGameParameters:
+class TankWarGameParameters(GameParameters):
     """Class that holds all the game parameters."""
     
     def __init__(self,

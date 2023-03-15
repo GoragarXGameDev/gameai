@@ -1,9 +1,7 @@
-from games.action import Action
-from games.forward_model import ForwardModel
-from games.observation import Observation
-from heuristics.heuristic import Heuristic
-from players.montecarlo_tree_search.montecarlo_tree_search_node import MontecarloTreeSearchNode
-from players.player import Player
+from games import Action, Observation, ForwardModel
+from heuristics import Heuristic
+from players.montecarlo_tree_search import MontecarloTreeSearchNode
+from players import Player
 import time
 
 class MontecarloTreeSearchPlayer(Player):

@@ -1,21 +1,8 @@
-from games.asmacag.asmacag_fitness_evaluator import AsmacagFitnessEvaluator
-from games.asmacag.asmacag_forward_model import AsmacagForwardModel
-from games.asmacag.asmacag_game import AsmacagGame
-from games.asmacag.asmacag_game_parameters import AsmacagGameParameters
-from games.hero_academy.heroac_fitness_evaluator import HeroAcademyFitnessEvaluator
-from games.hero_academy.heroac_forward_model import HeroAcademyForwardModel
-from games.hero_academy.heroac_game import HeroAcademyGame
-from games.hero_academy.heroac_game_parameters import HeroAcademyGameParameters
-from games.tank_war.tankwar_fitness_evaluator import TankWarFitnessEvaluator
-from games.tank_war.tankwar_forward_model import TankWarForwardModel
-from games.tank_war.tankwar_game import TankWarGame
-from games.tank_war.tankwar_game_parameters import TankWarGameParameters
-from players.greedy_action_player import GreedyActionPlayer
-from players.montecarlo_tree_search_player import MontecarloTreeSearchPlayer
-from players.ntuple_bandit_online_evolution_player import NTupleBanditOnlineEvolutionPlayer
-from players.online_evolution_player import OnlineEvolutionPlayer
-from players.random_player import RandomPlayer
-from heuristics.simple_heuristic import SimpleHeuristic
+from games.asmacag import *
+from games.hero_academy import *
+from games.tank_war import *
+from players import *
+from heuristics import SimpleHeuristic
 
 if __name__ == '__main__':
     # Players parameters
@@ -36,10 +23,10 @@ if __name__ == '__main__':
     save_name = "out/sample_output.txt"         # where the game is going to be saved, can be None
 
     # ASMACAG parameters
-    # parameters = AsmacagGameParameters() 
-    # forward_model = AsmacagForwardModel()
-    # fitness_asmacag = AsmacagFitnessEvaluator(ntboe_heuristic)
-    # game = AsmacagGame(parameters, forward_model)
+    parameters = AsmacagGameParameters() 
+    forward_model = AsmacagForwardModel()
+    fitness_asmacag = AsmacagFitnessEvaluator(ntboe_heuristic)
+    game = AsmacagGame(parameters, forward_model)
 
     # Hero Academy parameters
     #parameters = HeroAcademyGameParameters() 
@@ -48,10 +35,10 @@ if __name__ == '__main__':
     #game = HeroAcademyGame(parameters, forward_model)
 
     # Tank war parameters
-    parameters = TankWarGameParameters() 
-    forward_model = TankWarForwardModel()
-    fitness_tankwar = TankWarFitnessEvaluator(ntboe_heuristic)
-    game = TankWarGame(parameters, forward_model)
+    # parameters = TankWarGameParameters() 
+    # forward_model = TankWarForwardModel()
+    # fitness_tankwar = TankWarFitnessEvaluator(ntboe_heuristic)
+    # game = TankWarGame(parameters, forward_model)
 
     # Common players
     random = RandomPlayer()
@@ -60,13 +47,13 @@ if __name__ == '__main__':
     oe = OnlineEvolutionPlayer(oe_heuristic, 125, 0.15, 0.15)
 
     # ASMACAG players
-    # ntboe_asmacag = NTupleBanditOnlineEvolutionPlayer(ntboe_heuristic, fitness_asmacag, dimensions, 8, 5, 0.55, 1000)
+    ntboe_asmacag = NTupleBanditOnlineEvolutionPlayer(ntboe_heuristic, fitness_asmacag, dimensions, 8, 5, 0.55, 1000)
 
     # Hero Academy players
     # ntboe_heroac = NTupleBanditOnlineEvolutionPlayer(ntboe_heuristic, fitness_heroac, dimensions, 8, 5, 0.55, 1000)
 
     # Tank war players
-    ntboe_tankwar = NTupleBanditOnlineEvolutionPlayer(ntboe_heuristic, fitness_tankwar, dimensions, 8, 5, 0.55, 1000)
+    # ntboe_tankwar = NTupleBanditOnlineEvolutionPlayer(ntboe_heuristic, fitness_tankwar, dimensions, 8, 5, 0.55, 1000)
     
     players = [oe, mcts]                       # list of players
 

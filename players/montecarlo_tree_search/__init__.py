@@ -1,1 +1,3 @@
-from players.montecarlo_tree_search.montecarlo_tree_search_node import MontecarloTreeSearchNode
+__all__ = ('MontecarloTreeSearchNode')
+
+from .montecarlo_tree_search_node import MontecarloTreeSearchNode

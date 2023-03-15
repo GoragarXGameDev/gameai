@@ -1,9 +1,9 @@
 from typing import List
 from games.hero_academy.heroac_action import HeroAcademyAction
-from games.hero_academy.heroac_forward_model import HeroAcademyForwardModel
 from games.hero_academy.heroac_observation import HeroAcademyObservation
-from players.ntuple_bandit_online_evolution.fitness_evaluator import FitnessEvaluator
-from heuristics.heuristic import Heuristic
+from games.hero_academy.heroac_forward_model import HeroAcademyForwardModel
+from players.ntuple_bandit_online_evolution import FitnessEvaluator
+from heuristics import Heuristic
 
 class HeroAcademyFitnessEvaluator(FitnessEvaluator):
     def __init__(self, heuristic: 'Heuristic'):

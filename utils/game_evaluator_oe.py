@@ -1,7 +1,6 @@
 from typing import List
 from players import OnlineEvolutionPlayer, GreedyActionPlayer, RandomPlayer, Player
 
-
 class GameEvaluatorOE:
     def __init__(self, game, heuristic):
         self.game = game

@@ -1,2 +1,4 @@
-from heuristics.heuristic import Heuristic
-from heuristics.simple_heuristic import SimpleHeuristic
+__all__ = ('Heuristic', 'SimpleHeuristic')
+
+from .heuristic import Heuristic
+from .simple_heuristic import SimpleHeuristic

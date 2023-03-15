@@ -1,7 +1,7 @@
-from games.asmacag.asmacag_forward_model import AsmacagForwardModel
+from games import Game
 from games.asmacag.asmacag_game_parameters import AsmacagGameParameters
 from games.asmacag.asmacag_game_state import AsmacagGameState
-from games.game import Game
+from games.asmacag.asmacag_forward_model import AsmacagForwardModel
 
 class AsmacagGame(Game):
     def __init__(self, parameters: 'AsmacagGameParameters', forward_model: 'AsmacagForwardModel'):

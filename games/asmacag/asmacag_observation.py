@@ -1,10 +1,9 @@
 from typing import Any, Dict, List
-from games.asmacag.asmacag_action import AsmacagAction
-from games.asmacag.asmacag_card_collection import AsmacagCardCollection
+from games import Observation
 from games.asmacag.asmacag_card_type import AsmacagCardType
+from games.asmacag.asmacag_card_collection import AsmacagCardCollection
+from games.asmacag.asmacag_action import AsmacagAction
 from games.asmacag.asmacag_game_parameters import AsmacagGameParameters
-from games.game_parameters import GameParameters
-from games.observation import Observation
 import random
 
 class AsmacagObservation(Observation):
@@ -105,7 +104,7 @@ class AsmacagObservation(Observation):
 # endregion
 
 # region Overrides
-    def get_game_parameters(self) -> 'GameParameters':
+    def get_game_parameters(self) -> 'AsmacagGameParameters':
         return self.game_parameters
     
     def get_action_points_left(self) -> int:

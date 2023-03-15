@@ -1,9 +1,9 @@
 from typing import List
 from games.tank_war.tankwar_action import TankWarAction
-from games.tank_war.tankwar_forward_model import TankWarForwardModel
 from games.tank_war.tankwar_observation import TankWarObservation
-from players.ntuple_bandit_online_evolution.fitness_evaluator import FitnessEvaluator
-from heuristics.heuristic import Heuristic
+from games.tank_war.tankwar_forward_model import TankWarForwardModel
+from players.ntuple_bandit_online_evolution import FitnessEvaluator
+from heuristics import Heuristic
 
 class TankWarFitnessEvaluator(FitnessEvaluator):
     def __init__(self, heuristic: 'Heuristic'):

@@ -1,5 +1,5 @@
 from typing import Optional
-from games.game_parameters import GameParameters
+from games import GameParameters
 
 class AsmacagGameParameters(GameParameters):
     """Contains the parameters for a `Game`. Note that these are assumed to be static and therefore are always shallow copied. Do not modify them after instatiating."""

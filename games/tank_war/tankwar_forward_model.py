@@ -1,11 +1,11 @@
 from typing import Union, Tuple
 from copy import deepcopy
-from games.forward_model import ForwardModel
-from games.tank_war.tankwar_action import TankWarAction
-from games.tank_war.tankwar_game_state import TankWarGameState
-from games.tank_war.tankwar_observation import TankWarObservation
-from games.tank_war.tankwar_unit import TankWarUnit
+from games import ForwardModel
 from games.tank_war.tankwar_unit_type import TankWarUnitType
+from games.tank_war.tankwar_unit import TankWarUnit
+from games.tank_war.tankwar_action import TankWarAction
+from games.tank_war.tankwar_observation import TankWarObservation
+from games.tank_war.tankwar_game_state import TankWarGameState
 
 class TankWarForwardModel(ForwardModel):
     def __init__(self):

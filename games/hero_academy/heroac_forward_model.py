@@ -1,13 +1,13 @@
 from typing import Union, Tuple
 from copy import deepcopy
-from games.forward_model import ForwardModel
-from games.hero_academy.heroac_action import HeroAcademyAction
-from games.hero_academy.heroac_card import HeroAcademyCard
-from games.hero_academy.heroac_card_value import HeroAcademyCardValue
-from games.hero_academy.heroac_game_state import HeroAcademyGameState
-from games.hero_academy.heroac_observation import HeroAcademyObservation
+from games import ForwardModel
 from games.hero_academy.heroac_tile_type import HeroAcademyTileType
+from games.hero_academy.heroac_card_value import HeroAcademyCardValue
+from games.hero_academy.heroac_card import HeroAcademyCard
 from games.hero_academy.heroac_unit import HeroAcademyUnit
+from games.hero_academy.heroac_action import HeroAcademyAction
+from games.hero_academy.heroac_observation import HeroAcademyObservation
+from games.hero_academy.heroac_game_state import HeroAcademyGameState
 
 class HeroAcademyForwardModel(ForwardModel):
     def __init__(self):

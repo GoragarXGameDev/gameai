@@ -1,11 +1,11 @@
 from typing import List
-from games.asmacag.asmacag_action import AsmacagAction
-from games.asmacag.asmacag_card import AsmacagCard
 from games.asmacag.asmacag_card_type import AsmacagCardType
-from games.asmacag.asmacag_forward_model import AsmacagForwardModel
+from games.asmacag.asmacag_card import AsmacagCard
+from games.asmacag.asmacag_action import AsmacagAction
 from games.asmacag.asmacag_observation import AsmacagObservation
-from players.ntuple_bandit_online_evolution.fitness_evaluator import FitnessEvaluator
-from heuristics.heuristic import Heuristic
+from games.asmacag.asmacag_forward_model import AsmacagForwardModel
+from heuristics import Heuristic
+from players.ntuple_bandit_online_evolution import FitnessEvaluator
 
 class AsmacagFitnessEvaluator(FitnessEvaluator):
     def __init__(self, heuristic: 'Heuristic'):

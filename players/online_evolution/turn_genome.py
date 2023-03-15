@@ -1,7 +1,5 @@
 from typing import List
-from games.action import Action
-from games.forward_model import ForwardModel
-from games.observation import Observation
+from games import Action, Observation, ForwardModel
 import random
 
 class TurnGenome:

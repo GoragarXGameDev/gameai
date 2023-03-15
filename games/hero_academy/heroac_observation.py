@@ -1,15 +1,16 @@
 from typing import Any, Dict, List, Tuple
 from copy import deepcopy
-from games.hero_academy.heroac_action import HeroAcademyAction
-from games.hero_academy.heroac_card_collection import HeroAcademyCardCollection
-from games.hero_academy.heroac_card_value import HeroAcademyCardValue
-from games.hero_academy.heroac_game_parameters import HeroAcademyGameParameters
+from games import Observation
 from games.hero_academy.heroac_tile_type import HeroAcademyTileType
+from games.hero_academy.heroac_card_value import HeroAcademyCardValue
 from games.hero_academy.heroac_unit import HeroAcademyUnit
 from games.hero_academy.heroac_unit_collection import HeroAcademyUnitCollection
+from games.hero_academy.heroac_action import HeroAcademyAction
+from games.hero_academy.heroac_card_collection import HeroAcademyCardCollection
+from games.hero_academy.heroac_game_parameters import HeroAcademyGameParameters
 import random
 
-class HeroAcademyObservation:
+class HeroAcademyObservation(Observation):
     def __init__(self, game_state_info: Dict[str, Any], randomise_hidden_info: bool = False):
         if game_state_info is not None:
             self.game_parameters: 'HeroAcademyGameParameters' = game_state_info['game_parameters']

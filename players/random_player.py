@@ -1,7 +1,5 @@
-from games.action import Action
-from games.forward_model import ForwardModel
-from games.observation import Observation
-from players.player import Player
+from games import Action, Observation, ForwardModel
+from players import Player
 
 class RandomPlayer(Player):
     def __init__(self):

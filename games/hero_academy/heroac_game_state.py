@@ -1,16 +1,17 @@
 from typing import Any, Dict, Tuple
-from games.hero_academy.heroac_card import HeroAcademyCard
-from games.hero_academy.heroac_card_collection import HeroAcademyCardCollection
+from games import GameState
+from games.hero_academy.heroac_tile_type import HeroAcademyTileType
 from games.hero_academy.heroac_card_type import HeroAcademyCardType
 from games.hero_academy.heroac_card_value import HeroAcademyCardValue
-from games.hero_academy.heroac_game_parameters import HeroAcademyGameParameters
-from games.hero_academy.heroac_observation import HeroAcademyObservation
-from games.hero_academy.heroac_tile_type import HeroAcademyTileType
+from games.hero_academy.heroac_card import HeroAcademyCard
 from games.hero_academy.heroac_unit import HeroAcademyUnit
 from games.hero_academy.heroac_unit_collection import HeroAcademyUnitCollection
+from games.hero_academy.heroac_card_collection import HeroAcademyCardCollection
+from games.hero_academy.heroac_game_parameters import HeroAcademyGameParameters
+from games.hero_academy.heroac_observation import HeroAcademyObservation
 import random
 
-class HeroAcademyGameState:
+class HeroAcademyGameState(GameState):
     """GameState class represents the state of the game."""
 
     def __init__(self, game_parameters: 'HeroAcademyGameParameters') -> None:

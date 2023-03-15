@@ -1,8 +1,5 @@
 from abc import ABC, abstractmethod
-from games.action import Action
-from games.forward_model import ForwardModel
-from games.observation import Observation
-
+from games import Action, Observation, ForwardModel
 
 class Player(ABC):
     """Abstract class that will define a player of the game"""

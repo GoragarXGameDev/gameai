@@ -1,6 +1,8 @@
-from games.action import Action
-from games.forward_model import ForwardModel
-from games.game_parameters import GameParameters
-from games.game_state import GameState
-from games.observation import Observation
-from games.game import Game
+__all__ = ('Action', 'GameParameters', 'Observation', 'GameState', 'ForwardModel', 'Game')
+
+from .action import Action
+from .game_parameters import GameParameters
+from .observation import Observation
+from .game_state import GameState
+from .forward_model import ForwardModel
+from .game import Game

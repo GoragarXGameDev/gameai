@@ -1,14 +1,6 @@
-from games.asmacag.asmacag_fitness_evaluator import AsmacagFitnessEvaluator
-from games.asmacag.asmacag_forward_model import AsmacagForwardModel
-from games.asmacag.asmacag_game import AsmacagGame
-from games.asmacag.asmacag_game_parameters import AsmacagGameParameters
-from players.greedy_action_player import GreedyActionPlayer
-from players.montecarlo_tree_search_player import MontecarloTreeSearchPlayer
-from players.ntuple_bandit_online_evolution_player import NTupleBanditOnlineEvolutionPlayer
-from players.online_evolution_player import OnlineEvolutionPlayer
-from players.random_player import RandomPlayer
-from heuristics.simple_heuristic import SimpleHeuristic
-
+from games.asmacag import *
+from players import *
+from heuristics import SimpleHeuristic
 
 def actualize_points(points, winner, i1, i2):
     if winner == 0:

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from games.observation import Observation
+from games import Observation
 
 class Heuristic(ABC):
     """Abstract class that will define a heuristic for the game"""

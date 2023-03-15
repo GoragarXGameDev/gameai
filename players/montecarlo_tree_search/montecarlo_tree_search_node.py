@@ -1,8 +1,6 @@
 from typing import List, Optional
-from games.action import Action
-from games.forward_model import ForwardModel
-from games.observation import Observation
-from heuristics.heuristic import Heuristic
+from games import Action, Observation, ForwardModel
+from heuristics import Heuristic
 import math
 import random
 import sys

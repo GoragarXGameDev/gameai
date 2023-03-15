@@ -1,8 +1,8 @@
 from typing import Union
-from games.asmacag.asmacag_action import AsmacagAction
 from games.asmacag.asmacag_card_type import AsmacagCardType
-from games.asmacag.asmacag_game_state import AsmacagGameState
+from games.asmacag.asmacag_action import AsmacagAction
 from games.asmacag.asmacag_observation import AsmacagObservation
+from games.asmacag.asmacag_game_state import AsmacagGameState
 from games.forward_model import ForwardModel
 
 class AsmacagForwardModel(ForwardModel):

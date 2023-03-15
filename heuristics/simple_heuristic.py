@@ -1,4 +1,4 @@
-from games.observation import Observation
+from games import Observation
 from heuristics.heuristic import Heuristic
 
 class SimpleHeuristic(Heuristic):

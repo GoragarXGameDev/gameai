@@ -1,1 +1,3 @@
-from players.online_evolution.turn_genome import TurnGenome
+__all__ = ('TurnGenome')
+
+from .turn_genome import TurnGenome

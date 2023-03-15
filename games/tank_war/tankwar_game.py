@@ -1,7 +1,7 @@
-from games.game import Game
-from games.tank_war.tankwar_forward_model import TankWarForwardModel
+from games import Game
 from games.tank_war.tankwar_game_parameters import TankWarGameParameters
 from games.tank_war.tankwar_game_state import TankWarGameState
+from games.tank_war.tankwar_forward_model import TankWarForwardModel
 
 class TankWarGame(Game):
     def __init__(self, parameters: 'TankWarGameParameters', forward_model: 'TankWarForwardModel'):

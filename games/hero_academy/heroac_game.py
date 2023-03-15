@@ -1,7 +1,7 @@
-from games.hero_academy.heroac_forward_model import HeroAcademyForwardModel
+from games import Game
 from games.hero_academy.heroac_game_parameters import HeroAcademyGameParameters
 from games.hero_academy.heroac_game_state import HeroAcademyGameState
-from games.game import Game
+from games.hero_academy.heroac_forward_model import HeroAcademyForwardModel
 
 class HeroAcademyGame(Game):
     def __init__(self, parameters: 'HeroAcademyGameParameters', forward_model: 'HeroAcademyForwardModel'):

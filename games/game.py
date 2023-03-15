@@ -2,10 +2,10 @@ from abc import abstractmethod
 from io import TextIOWrapper
 from typing import Optional
 from games.action import Action
-from games.forward_model import ForwardModel
-from games.game_state import GameState
 from games.observation import Observation
-from players.player import Player
+from games.game_state import GameState
+from games.forward_model import ForwardModel
+from players import Player
 import random
 import sys
 import func_timeout

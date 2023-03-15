@@ -1,13 +1,14 @@
 from typing import Any, Dict, List, Tuple
 from copy import deepcopy
+from games.observation import Observation
 from games.tank_war.tankwar_action import TankWarAction
-from games.tank_war.tankwar_game_parameters import TankWarGameParameters
+from games.tank_war.tankwar_unit_type import TankWarUnitType
 from games.tank_war.tankwar_unit import TankWarUnit
 from games.tank_war.tankwar_unit_collection import TankWarUnitCollection
-from games.tank_war.tankwar_unit_type import TankWarUnitType
+from games.tank_war.tankwar_game_parameters import TankWarGameParameters
 import random
 
-class TankWarObservation:
+class TankWarObservation(Observation):
     def __init__(self, game_state: Dict[str, Any], randomise_hidden_info: bool = False):
         if game_state is not None:
             self.game_parameters: 'TankWarGameParameters' = game_state['game_parameters']

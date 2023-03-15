@@ -1,8 +1,9 @@
 from typing import Tuple
 from copy import deepcopy
+from games import Action
 from games.tank_war.tankwar_unit import TankWarUnit
 
-class TankWarAction:
+class TankWarAction(Action):
     def __init__(self, unit: 'TankWarUnit', pos: Tuple[int, int] = None):
         """Actions stand for every possible action that can be taken by a unit per turn."""
         self.unit = unit

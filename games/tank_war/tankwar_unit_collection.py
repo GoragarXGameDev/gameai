@@ -1,7 +1,7 @@
 from typing import List, Tuple
 from copy import deepcopy
-from games.tank_war.tankwar_unit import TankWarUnit
 from games.tank_war.tankwar_unit_type import TankWarUnitType
+from games.tank_war.tankwar_unit import TankWarUnit
 
 class TankWarUnitCollection:
     def __init__(self) -> None:

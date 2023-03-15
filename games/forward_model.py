@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Union
 from games.action import Action
-from games.game_state import GameState
 from games.observation import Observation
+from games.game_state import GameState
 
 class ForwardModel(ABC):
     """Abstract class that will define the rules for the game"""

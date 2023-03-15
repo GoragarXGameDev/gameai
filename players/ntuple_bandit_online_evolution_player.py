@@ -1,12 +1,8 @@
 from typing import Tuple, List
-from games.action import Action
-from games.forward_model import ForwardModel
-from games.observation import Observation
-from heuristics.heuristic import Heuristic
-from players.ntuple_bandit_online_evolution.bandit_1d import Bandit1D
-from players.ntuple_bandit_online_evolution.bandit_2d import Bandit2D
-from players.ntuple_bandit_online_evolution.fitness_evaluator import FitnessEvaluator
-from players.player import Player
+from games import Action, Observation, ForwardModel
+from heuristics import Heuristic
+from players.ntuple_bandit_online_evolution import Bandit1D, Bandit2D, FitnessEvaluator
+from players import Player
 import copy
 import math
 import random

@@ -1,11 +1,7 @@
+from typing import List
+from utils import *
 import math
 import random
-from typing import List
-
-from utils.GameEvaluatorOE import GameEvaluatorOE
-from utils.bandit_1d import Bandit1D
-from utils.bandit_2d import Bandit2D
-
 
 class Ntbea:
     def __init__(self, parameters: List[List[float]], fitness: GameEvaluatorOE, c_value: float, n_neighbours: int, mutation_rate: float, n_initializations: int):

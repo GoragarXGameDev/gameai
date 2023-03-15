@@ -1,5 +1,5 @@
 from typing import Optional
-from games.game_parameters import GameParameters
+from games import GameParameters
 
 class HeroAcademyGameParameters(GameParameters):
     """Class that holds all the game parameters."""

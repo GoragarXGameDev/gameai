@@ -1,3 +1,5 @@
-from players.ntuple_bandit_online_evolution.bandit_1d import Bandit1D
-from players.ntuple_bandit_online_evolution.bandit_2d import Bandit2D
-from players.ntuple_bandit_online_evolution.fitness_evaluator import FitnessEvaluator
+__all__ = ('Bandit1D', 'Bandit2D', 'FitnessEvaluator')
+
+from .bandit_1d import Bandit1D
+from .bandit_2d import Bandit2D
+from .fitness_evaluator import FitnessEvaluator

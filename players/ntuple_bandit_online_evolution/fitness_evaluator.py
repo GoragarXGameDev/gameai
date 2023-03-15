@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List
-from games.action import Action
-from games.forward_model import ForwardModel
-from games.observation import Observation
+from games import Action, Observation, ForwardModel
 
 class FitnessEvaluator(ABC):
     """Abstract class that will define the fitness evaluator for the game"""
