@@ -13,8 +13,10 @@ import random
 import time
 
 class NTupleBanditOnlineEvolutionPlayer(Player):
-    def __init__(self, heuristic: 'Heuristic', fitness: 'FitnessEvaluator', dimensions: List[int], c_value: float, neighbours: int, mutation_rate: float, initializations: int):
+    def __init__(self, heuristic: 'Heuristic', fitness: 'FitnessEvaluator', dimensions: List[int], c_value: float,
+                 neighbours: int, mutation_rate: float, initializations: int):
         """Entity that plays a Game by using the N-Tuple Bandit Online Evolution to model fitness and evolve a list of Action based on it, composing a turn."""
+        super().__init__()
         self.c_value = c_value  # c parameter for UCB
         self.neighbours = neighbours  # amount of neighbours per iteration
         self.mutation_rate = mutation_rate

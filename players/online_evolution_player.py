@@ -11,17 +11,18 @@ import random
 class OnlineEvolutionPlayer(Player):
     def __init__(self, heuristic: 'Heuristic', population_size: int, mutation_rate: float, survival_rate: float) -> None:
         """Entity that plays a game by using the Online Evolution algorithm to choose all actions in a turn."""
+        super().__init__()
         self.population_size = population_size
         self.mutation_rate = mutation_rate
         self.survival_rate = survival_rate
         self.heuristic = heuristic
         self.turn = []
-        super().__init__()
+
 
 # region Methods
     def think(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> 'Action':
         """Computes a list of actions for a complete turn using the Online Evolution algorithm and returns them in order each time it's called during the turn."""
-        if observation.get_action_points_left() == observation.get_game_parameters().get_action_points_per_turn() and len(self.turn) > 0:
+        if observation.get_action_points_left() == observation.get_game_parameters().get_action_points_per_turn() and len(self.turn) >= 0:
             self.turn.clear()
             self.compute_turn(observation, forward_model, budget)
         if len(self.turn) == 0:

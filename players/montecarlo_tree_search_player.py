@@ -9,10 +9,11 @@ import time
 class MontecarloTreeSearchPlayer(Player):
     """Entity that plays a game by using the Monte Carlo Tree Search algorithm to choose all actions in a turn."""
     def __init__(self, heuristic: 'Heuristic', c_value: float):
+        super().__init__()
         self.heuristic = heuristic
         self.c_value = c_value
         self.turn = []
-        super().__init__()
+
 
 # region Methods
     def think(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> 'Action':
