@@ -6,6 +6,10 @@ from games.hero_academy.heroac_fitness_evaluator import HeroAcademyFitnessEvalua
 from games.hero_academy.heroac_forward_model import HeroAcademyForwardModel
 from games.hero_academy.heroac_game import HeroAcademyGame
 from games.hero_academy.heroac_game_parameters import HeroAcademyGameParameters
+from games.tank_war.tankwar_fitness_evaluator import TankWarFitnessEvaluator
+from games.tank_war.tankwar_forward_model import TankWarForwardModel
+from games.tank_war.tankwar_game import TankWarGame
+from games.tank_war.tankwar_game_parameters import TankWarGameParameters
 from players.greedy_action_player import GreedyActionPlayer
 from players.montecarlo_tree_search_player import MontecarloTreeSearchPlayer
 from players.ntuple_bandit_online_evolution_player import NTupleBanditOnlineEvolutionPlayer
@@ -38,10 +42,16 @@ if __name__ == '__main__':
     # game = AsmacagGame(parameters, forward_model)
 
     # Hero Academy parameters
-    parameters = HeroAcademyGameParameters() 
-    forward_model = HeroAcademyForwardModel()
-    fitness_heroac = HeroAcademyFitnessEvaluator(ntboe_heuristic)
-    game = HeroAcademyGame(parameters, forward_model)
+    #parameters = HeroAcademyGameParameters() 
+    #forward_model = HeroAcademyForwardModel()
+    #fitness_heroac = HeroAcademyFitnessEvaluator(ntboe_heuristic)
+    #game = HeroAcademyGame(parameters, forward_model)
+
+    # Tank war parameters
+    parameters = TankWarGameParameters() 
+    forward_model = TankWarForwardModel()
+    fitness_tankwar = TankWarFitnessEvaluator(ntboe_heuristic)
+    game = TankWarGame(parameters, forward_model)
 
     # Common players
     random = RandomPlayer()
@@ -53,7 +63,10 @@ if __name__ == '__main__':
     # ntboe_asmacag = NTupleBanditOnlineEvolutionPlayer(ntboe_heuristic, fitness_asmacag, dimensions, 8, 5, 0.55, 1000)
 
     # Hero Academy players
-    ntboe_heroac = NTupleBanditOnlineEvolutionPlayer(ntboe_heuristic, fitness_heroac, dimensions, 8, 5, 0.55, 1000)
+    # ntboe_heroac = NTupleBanditOnlineEvolutionPlayer(ntboe_heuristic, fitness_heroac, dimensions, 8, 5, 0.55, 1000)
+
+    # Tank war players
+    ntboe_tankwar = NTupleBanditOnlineEvolutionPlayer(ntboe_heuristic, fitness_tankwar, dimensions, 8, 5, 0.55, 1000)
     
     players = [oe, mcts]                       # list of players
 
