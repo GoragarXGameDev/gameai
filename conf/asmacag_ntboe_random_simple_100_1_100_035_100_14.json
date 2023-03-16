@@ -1,0 +1,15 @@
+{
+  "game_name": "asmacag",
+  "player1_name": "ntboe",
+  "player2_name": "random",
+  "n_games": 100,
+  "heuristic_name": "simple",
+  "budget": 1,
+  "verbose": false,
+  "enforce_time": true,
+  "n_neighbours": 100,
+  "mutation_rate": 0.35,
+  "n_initializations": 100,
+  "c": 1.4,
+  "result_file": "out/asmacag_ntboe_random_simple_100_1_100_035_100_14.json"
+}

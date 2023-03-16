@@ -9,11 +9,13 @@ from games.asmacag import AsmacagGameParameters, AsmacagForwardModel, AsmacagFit
 from games import Game
 from games.hero_academy import HeroAcademyGameParameters, HeroAcademyForwardModel, HeroAcademyGame
 from games.tank_war import TankWarGameParameters, TankWarForwardModel, TankWarGame
-from players import Player, RandomPlayer, GreedyActionPlayer, MontecarloTreeSearchPlayer, OnlineEvolutionPlayer
+from players import Player, RandomPlayer, GreedyActionPlayer, MontecarloTreeSearchPlayer, OnlineEvolutionPlayer, \
+    NTupleBanditOnlineEvolutionPlayer
 from heuristics import SimpleHeuristic
 from heuristics import Heuristic
 from utils.configuration_reader import ConfigurationReader
 from utils.results_writer import ResultsWriter
+from players.ntuple_bandit_online_evolution.fitness_evaluator import FitnessEvaluator
 
 
 def get_game(game_name: str) -> 'Game':
@@ -49,6 +51,15 @@ def get_player(player_name: str, heuristic: 'Heuristic', conf: 'ConfigurationRea
         mutation_rate = conf.get("mutation_rate")
         survival_rate = conf.get("survival_rate")
         player = OnlineEvolutionPlayer(heuristic, population_size, mutation_rate, survival_rate)
+    elif player_name == "ntboe":
+        n_neighbours = conf.get("n_neighbours")
+        mutation_rate = conf.get("mutation_rate")
+        n_initializations = conf.get("n_initializations")
+        c = conf.get("c")
+        dimensions = get_dimensions(conf)
+        fitness = get_fitness(conf, heuristic)
+        player = NTupleBanditOnlineEvolutionPlayer(heuristic, fitness, dimensions, c,
+                                                  n_neighbours, mutation_rate, n_initializations)
     return player
 
 
@@ -58,6 +69,21 @@ def get_heuristic(heuristic_name: str) -> 'Heuristic':
     if heuristic_name == "simple":
         heuristic = SimpleHeuristic()
     return heuristic
+
+
+def get_fitness(conf: 'ConfigurationReader', heuristic: 'Heuristic') -> 'FitnessEvaluator':
+    """Given the fitness evaluator name, create the corresponding FitnessEvaluator object."""
+    fitness = None
+    if conf.get("game_name") == "asmacag":
+        fitness = AsmacagFitnessEvaluator(heuristic)
+    return fitness
+
+
+def get_dimensions(conf: 'ConfigurationReader') -> List[int]:
+    dimensions = None
+    if conf.get("game_name") == "asmacag":
+        dimensions = [38, 38, 38]
+    return dimensions
 
 
 def run_n_games(gm: 'Game', pl1: 'Player', pl2: 'Player', n_gms: int,
