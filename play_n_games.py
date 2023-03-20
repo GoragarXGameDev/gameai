@@ -4,18 +4,15 @@ from typing import List
 import scipy.stats as ss
 import time
 import datetime
-
-from games.asmacag import AsmacagGameParameters, AsmacagForwardModel, AsmacagFitnessEvaluator, AsmacagGame
+from tqdm import tqdm
 from games import Game
+from players.ntuple_bandit_online_evolution import FitnessEvaluator
+from games.asmacag import AsmacagGameParameters, AsmacagForwardModel, AsmacagFitnessEvaluator, AsmacagGame
 from games.hero_academy import HeroAcademyGameParameters, HeroAcademyForwardModel, HeroAcademyGame
 from games.tank_war import TankWarGameParameters, TankWarForwardModel, TankWarGame
-from players import Player, RandomPlayer, GreedyActionPlayer, MontecarloTreeSearchPlayer, OnlineEvolutionPlayer, \
-    NTupleBanditOnlineEvolutionPlayer
-from heuristics import SimpleHeuristic
-from heuristics import Heuristic
-from utils.configuration_reader import ConfigurationReader
-from utils.results_writer import ResultsWriter
-from players.ntuple_bandit_online_evolution.fitness_evaluator import FitnessEvaluator
+from players import *
+from heuristics import *
+from utils import ConfigurationReader, ResultsWriter
 
 
 def get_game(game_name: str) -> 'Game':
@@ -92,10 +89,7 @@ def run_n_games(gm: 'Game', pl1: 'Player', pl2: 'Player', n_gms: int,
     wins1 = 0
     wins2 = 0
     ties = 0
-    for i in range(n_gms):
-        if (i+1) % max(n_gms//10, 1) == 0:
-            print(str((i+1)*(100/n_gms)) + "% ", end="", flush=True)
-
+    for i in tqdm(range(n_gms), desc="Games"):
         gm.run(pl1, pl2, budget, verbose, enforce_time)
 
         if game.get_winner() == 0:
@@ -104,7 +98,6 @@ def run_n_games(gm: 'Game', pl1: 'Player', pl2: 'Player', n_gms: int,
             wins2 += 1
         else:
             ties += 1
-    print("")
     return [wins1, wins2, ties]
 
 
