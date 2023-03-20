@@ -203,6 +203,20 @@ class HeroAcademyObservation(Observation):
                 return HeroAcademyAction(card.clone(), None, deepcopy(random.choice(spawns)))
 # endregion
 
+# region Setters
+    def set_current_player_score(self, score: int):
+        if self.current_turn == 0:
+            self.player_0_score = score
+        else:
+            self.player_1_score = score
+
+    def set_enemy_player_score(self, score: int):
+        if self.current_turn == 0:
+            self.player_1_score = score
+        else:
+            self.player_0_score = score
+# endregion
+
 #region Override
     def get_game_parameters(self) -> 'HeroAcademyGameParameters':
         return self.game_parameters

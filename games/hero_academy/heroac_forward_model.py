@@ -96,12 +96,7 @@ class HeroAcademyForwardModel(ForwardModel):
             game_state.action_points_left = game_state.game_parameters.action_points_per_turn
 
     def is_terminal(self, game_state: Union['HeroAcademyGameState', 'HeroAcademyObservation']) -> bool:
-        if self.current_player_cant_play(game_state) and self.next_player_has_units(game_state):
-            if game_state.current_turn == 0:
-                game_state.player_1_score += game_state.player_0_score * 2
-            else:
-                game_state.player_0_score += game_state.player_1_score * 2
-
+        self.update_terminal_score(game_state)
         return not game_state.player_0_units.crystals_alive() or not game_state.player_1_units.crystals_alive() \
             or self.current_player_cant_play(game_state)
 
@@ -124,6 +119,15 @@ class HeroAcademyForwardModel(ForwardModel):
         next_deck = game_state.player_1_deck if game_state.current_turn == 0 else game_state.player_0_deck
 
         return next_units.get_units_alive() > 0 or len(next_cards.get_unit_cards()) > 0 or len(next_deck.get_unit_cards()) > 0
+    
+    def update_terminal_score(self, game_state: Union['HeroAcademyGameState', 'HeroAcademyObservation']) -> None:
+        if self.current_player_cant_play(game_state) and self.next_player_has_units(game_state):
+            game_state.set_enemy_player_score(self.get_absolute_score(game_state))
+        if not self.current_player_cant_play(game_state) and not self.next_player_has_units(game_state):
+            game_state.set_current_player_score(self.get_absolute_score(game_state))
+
+    def get_absolute_score(self, game_state: Union['HeroAcademyGameState', 'HeroAcademyObservation']) -> int:
+        return abs(game_state.player_0_score) + abs(game_state.player_1_score)
 
     def update_score(self, game_state: Union['HeroAcademyGameState', 'HeroAcademyObservation']) -> None:
         """Update score."""
