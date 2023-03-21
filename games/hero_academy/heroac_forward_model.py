@@ -30,6 +30,8 @@ class HeroAcademyForwardModel(ForwardModel):
 
         if type(action.get_subject()) is HeroAcademyCard:
             card = action.get_subject().clone()
+            if card not in cards.get_cards():
+                return False
             if unit is None and action_pos is None:
                 cards.remove_card(card)
                 self.update_score(game_state)
