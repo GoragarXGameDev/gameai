@@ -12,12 +12,8 @@ class AsmacagForwardModel(ForwardModel):
     def step(self, game_state: Union['AsmacagGameState', 'AsmacagObservation'], action: 'AsmacagAction') -> bool:
         """Moves a `GameState` or `Observation` forward by playing the `Action`. Returns false if the `Action` couldn't be played."""
         game_state.action_points_left -= 1
-
-        if game_state.current_turn == 0:
-            hand = game_state.player_0_hand
-        else:
-            hand = game_state.player_1_hand
-
+        hand = game_state.player_0_hand if game_state.current_turn == 0 else game_state.player_1_hand
+        
         if action is None:
             # invalid action: no action returned
             game_state.discard_deck.add_card(hand.get_cards()[0])
@@ -46,10 +42,7 @@ class AsmacagForwardModel(ForwardModel):
                         score *= game_state.factor
                         game_state.factor = 1
 
-                    if game_state.current_turn == 0:
-                        game_state.player_0_score += score
-                    else:
-                        game_state.player_1_score += score
+                    exec(f"game_state.player_{game_state.current_turn}_score += {score}")
 
                     game_state.discard_deck.add_card(action.get_played_card())
                     game_state.discard_deck.add_card(action.get_board_card())
@@ -57,10 +50,7 @@ class AsmacagForwardModel(ForwardModel):
                     game_state.board.remove(action.get_board_card())
             else:
                 # special action
-                if action.get_played_card().get_type() == AsmacagCardType.MULT2:
-                    game_state.factor *= 2
-                else:
-                    game_state.factor /= 2
+                game_state.factor *= 2 if action.get_played_card().get_type() == AsmacagCardType.MULT2 else game_state.factor / 2
 
                 game_state.discard_deck.add_card(action.get_played_card())
                 hand.remove(action.get_played_card())
@@ -86,11 +76,8 @@ class AsmacagForwardModel(ForwardModel):
         """Calculates the minimum possible score for the `GameState` or `Observation` and adds it to the current player."""
         score = pow(2, game_state.game_parameters.action_points_per_turn - 1) \
             * (game_state.game_parameters.min_number - game_state.game_parameters.max_number)
-
-        if game_state.current_turn == 0:
-            game_state.player_0_score += score
-        else:
-            game_state.player_1_score += score
+        
+        exec(f"game_state.player_{game_state.current_turn}_score += {score}")
 # endregion
 
 # region Overrides

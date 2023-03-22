@@ -95,17 +95,11 @@ class TankWarForwardModel(ForwardModel):
         return pos[0] < 0 or pos[0] >= game_state.game_parameters.board_size or pos[1] < 0 or pos[1] >= game_state.game_parameters.board_size
 
     def remove_resources(self, game_state: Union['TankWarGameState', 'TankWarObservation']) -> bool:
-        if game_state.current_turn == 0:
-            game_state.player_0_resources -= game_state.game_parameters.resources_count_to_build
-        else:
-            game_state.player_1_resources -= game_state.game_parameters.resources_count_to_build
+        exec(f"game_state.player_{game_state.current_turn}_resources -= {game_state.game_parameters.resources_count_to_build}")
         return True
 
     def update_turn_resources(self, game_state: Union['TankWarGameState', 'TankWarObservation']) -> bool:
-        if game_state.current_turn == 0:
-            game_state.player_0_resources += self.future_player_resources(game_state)
-        else:
-            game_state.player_1_resources += self.future_player_resources(game_state)
+        exec(f"game_state.player_{game_state.current_turn}_resources += {self.future_player_resources(game_state)}")
         return True
 
     def get_score(self, game_state: Union['TankWarGameState', 'TankWarObservation']) -> int:
@@ -116,10 +110,7 @@ class TankWarForwardModel(ForwardModel):
 
     def update_score(self, game_state: Union['TankWarGameState', 'TankWarObservation']) -> bool:
         score = self.get_score(game_state)
-        if game_state.current_turn == 0:
-            game_state.player_0_score += score
-        else:
-            game_state.player_1_score += score
+        exec(f"game_state.player_{game_state.current_turn}_score += {score}")
         return True
 
     def future_player_resources(self, game_state: Union['TankWarGameState', 'TankWarObservation']) -> int:

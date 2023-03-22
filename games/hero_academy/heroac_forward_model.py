@@ -133,22 +133,17 @@ class HeroAcademyForwardModel(ForwardModel):
 
     def update_score(self, game_state: Union['HeroAcademyGameState', 'HeroAcademyObservation']) -> None:
         """Update score."""
-        if game_state.current_turn == 0:
-            current_hp = sum(map(lambda unit: unit.get_hp(), game_state.player_0_units.get_crystals()))
-            enemy_hp = sum(map(lambda unit: unit.get_hp(), game_state.player_1_units.get_crystals()))
-            score = int((current_hp - enemy_hp) * 0.01)
-            current_attack = sum(map(lambda unit: unit.get_bonus_attack(), game_state.player_0_units.get_units()))
-            enemy_attack = sum(map(lambda unit: unit.get_bonus_attack(), game_state.player_1_units.get_units()))
-            score += int((current_attack - enemy_attack) * 0.1)
-            score += game_state.player_0_units.get_units_alive() - game_state.player_1_units.get_units_alive()
-            game_state.player_0_score += score
-        else:
-            current_hp = sum(map(lambda unit: unit.get_hp(), game_state.player_1_units.get_crystals()))
-            enemy_hp = sum(map(lambda unit: unit.get_hp(), game_state.player_0_units.get_crystals()))
-            score = int((current_hp - enemy_hp) * 0.01)
-            current_attack = sum(map(lambda unit: unit.get_bonus_attack(), game_state.player_1_units.get_units()))
-            enemy_attack = sum(map(lambda unit: unit.get_bonus_attack(), game_state.player_0_units.get_units()))
-            score += int((current_attack - enemy_attack) * 0.1)
-            score += game_state.player_1_units.get_units_alive() - game_state.player_0_units.get_units_alive()
-            game_state.player_1_score += score
+        current_units = game_state.player_0_units if game_state.current_turn == 0 else game_state.player_1_units
+        enemy_units = game_state.player_1_units if game_state.current_turn == 0 else game_state.player_0_units
+
+        current_hp = sum(map(lambda unit: unit.get_hp(), current_units.get_crystals()))
+        enemy_hp = sum(map(lambda unit: unit.get_hp(), enemy_units.get_crystals()))
+        current_attack = sum(map(lambda unit: unit.get_bonus_attack(), current_units.get_units()))
+        enemy_attack = sum(map(lambda unit: unit.get_bonus_attack(), enemy_units.get_units()))
+
+        score = int((current_hp - enemy_hp) * 0.01)
+        score += int((current_attack - enemy_attack) * 0.1)
+        score += current_units.get_units_alive() - enemy_units.get_units_alive()
+
+        exec(f"game_state.player_{game_state.current_turn}_score += {score}")
 # endregion    
