@@ -1,0 +1,15 @@
+{
+  "game_name": "asmacag",
+  "player1_name": "oe",
+  "player2_name": "mcts",
+  "n_games": 100,
+  "heuristic_name": "simple",
+  "budget": 1,
+  "verbose": false,
+  "enforce_time": true,
+  "population_size": 100,
+  "mutation_rate_oe": 0.35,
+  "survival_rate": 0.5,
+  "c_mcts": 1.4,
+  "result_file": "out/asmacag_oe_mcts_simple_100_1_100_035_05_14.json"
+}

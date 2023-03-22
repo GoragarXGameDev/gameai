@@ -1,14 +1,14 @@
 {
-  "game_name": "asmacag",
+  "game_name": "tankwar",
   "player1_name": "oe",
-  "player2_name": "greedy",
+  "player2_name": "random",
   "n_games": 100,
   "heuristic_name": "simple",
   "budget": 1,
   "verbose": false,
   "enforce_time": true,
   "population_size": 100,
-  "mutation_rate": 0.35,
+  "mutation_rate_oe": 0.35,
   "survival_rate": 0.5,
-  "result_file": "out/asmacag_oe_greedy_simple_100_1_100_035_05.json"
+  "result_file": "out/tankwar_oe_random_simple_100_1_100_035_05.json"
 }

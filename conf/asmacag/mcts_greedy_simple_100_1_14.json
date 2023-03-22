@@ -1,0 +1,12 @@
+{
+  "game_name": "asmacag",
+  "player1_name": "mcts",
+  "player2_name": "greedy",
+  "n_games": 100,
+  "heuristic_name": "simple",
+  "budget": 1,
+  "verbose": false,
+  "enforce_time": true,
+  "c_mcts": 1.4,
+  "result_file": "out/asmacag_mcts_greedy_simple_100_1_14.json"
+}

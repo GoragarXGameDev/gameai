@@ -1,0 +1,11 @@
+{
+  "game_name": "heroacademy",
+  "player1_name": "greedy",
+  "player2_name": "random",
+  "n_games": 100,
+  "heuristic_name": "simple",
+  "budget": 1,
+  "verbose": false,
+  "enforce_time": true,
+  "result_file": "out/heroacademy_greedy_random_simple_100_1.json"
+}

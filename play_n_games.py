@@ -41,18 +41,18 @@ def get_player(player_name: str, heuristic: 'Heuristic', conf: 'ConfigurationRea
     elif player_name == "greedy":
         player = GreedyActionPlayer(heuristic)
     elif player_name == "mcts":
-        c = conf.get("c")
+        c = conf.get("c_mcts")
         player = MontecarloTreeSearchPlayer(heuristic, c)
     elif player_name == "oe":
         population_size = conf.get("population_size")
-        mutation_rate = conf.get("mutation_rate")
+        mutation_rate = conf.get("mutation_rate_oe")
         survival_rate = conf.get("survival_rate")
         player = OnlineEvolutionPlayer(heuristic, population_size, mutation_rate, survival_rate)
     elif player_name == "ntboe":
         n_neighbours = conf.get("n_neighbours")
-        mutation_rate = conf.get("mutation_rate")
+        mutation_rate = conf.get("mutation_rate_ntboe")
         n_initializations = conf.get("n_initializations")
-        c = conf.get("c")
+        c = conf.get("c_ntboe")
         dimensions = get_dimensions(conf)
         fitness = get_fitness(conf, heuristic)
         player = NTupleBanditOnlineEvolutionPlayer(heuristic, fitness, dimensions, c,
