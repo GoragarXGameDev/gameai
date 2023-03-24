@@ -1,4 +1,5 @@
-from typing import List, Optional
+from collections import defaultdict
+from typing import List, Optional, Tuple
 from games import Action, Observation, ForwardModel
 from heuristics import Heuristic
 import math
@@ -26,21 +27,26 @@ class MontecarloTreeSearchNode:
         """Adds a child to the `Node` child list."""
         self.children.append(child)
 
-    def extend(self, forward_model: 'ForwardModel') -> None:
+    def extend(self, forward_model: 'ForwardModel', visited: defaultdict) -> int:
         """Extends the `Node` by generating a child for each possible action"""
         actions = self.observation.get_actions()
         for action in actions:
             new_observation = self.observation.clone()
             forward_model.step(new_observation, action)
+            visited[new_observation] += 1
             self.children.append(MontecarloTreeSearchNode(new_observation, self.heuristic, action, self))
+        return len(actions)
 
-    def rollout(self, forward_model: 'ForwardModel') -> float:
+    def rollout(self, forward_model: 'ForwardModel', visited: defaultdict) -> Tuple[float, int]:
         """Performs a random rollout from the `Node` and returns the reward."""
         new_observation = self.observation.clone()
+        fm_visitis = 0
         while not forward_model.is_terminal(new_observation)\
                 and not forward_model.is_turn_finished(new_observation):
             forward_model.step(new_observation, new_observation.get_random_action())
-        return self.heuristic.get_reward(new_observation)
+            visited[new_observation] += 1
+            fm_visitis += 1
+        return self.heuristic.get_reward(new_observation), fm_visitis
 
     def backpropagate(self, reward: float) -> None:
         """Backpropagates the reward to the `Node` and its parents."""

@@ -14,20 +14,14 @@ class MontecarloTreeSearchPlayer(Player):
 
 
 # region Methods
-    def think(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> 'Action':
+    def think(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> None:
         """Computes a list of actions for a complete turn using the Monte Carlo Tree Search algorithm and returns them in order each time it's called during the turn."""
-        if observation.get_action_points_left() == observation.get_game_parameters().get_action_points_per_turn():
-            self.turn.clear()
-            self.compute_turn(observation, forward_model, budget)
-        if len(self.turn) == 0:
-            return None
-        return self.turn.pop(0)
+        self.turn.clear()
 
-    def compute_turn(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> None:
-        """Computes a list of action for a complete turn using the Monte Carlo Tree Search algorithm and sets it as the turn."""
+        # compute the turn
         t0 = time.time()
         root = MontecarloTreeSearchNode(observation, self.heuristic, None)
-        root.extend(forward_model)
+        self.forward_model_visits += root.extend(forward_model, self.visited_states)
         current_node = root
 
         while time.time() - t0 < budget - 0.12:
@@ -36,20 +30,73 @@ class MontecarloTreeSearchPlayer(Player):
                 current_node = best_child
             else:
                 if not best_child.get_is_unvisited() and not best_child.get_is_terminal(forward_model):
-                    best_child.extend(forward_model)
+                    self.forward_model_visits += best_child.extend(forward_model, self.visited_states)
                     best_child = best_child.get_random_child()
-                best_child.backpropagate(best_child.rollout(forward_model))
+                reward, fm_visits = best_child.rollout(forward_model, self.visited_states)
+                self.forward_model_visits += fm_visits
+                best_child.backpropagate(reward)
                 current_node = root
 
         # retrieve the turn
         current_node = root
-        for i in range(observation.get_game_parameters().get_action_points_per_turn()):
+        for _ in range(observation.get_game_parameters().get_action_points_per_turn()):
             best_child = current_node.get_best_child_by_average()
             if best_child is None:
-                self.turn.append(None)
-                continue
-            self.turn.append(best_child.get_action() if best_child is not None else None)
+                break
+            self.turn.append(best_child.get_action())
             current_node = best_child
+
+    def get_action(self, index: int) -> 'Action':
+        """Returns the next action in the turn."""
+        if index < len(self.turn):
+            return self.turn[index]
+        return None
+
+    #def think(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> 'Action':
+    #    """Computes a list of actions for a complete turn using the Monte Carlo Tree Search algorithm and returns them in order each time it's called during the turn."""
+    #    if self.timeout: 
+    #        if len(self.turn) > 0:
+    #            return self.turn.pop(0)
+    #        return None
+    #    
+    #    if observation.get_action_points_left() == observation.get_game_parameters().get_action_points_per_turn():
+    #        self.turn.clear()
+    #        self.compute_turn(observation, forward_model, budget)
+#
+    #    if len(self.turn) == 0:
+    #        return None
+#
+    #    return self.turn.pop(0)
+#
+    #def compute_turn(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> None:
+    #    """Computes a list of action for a complete turn using the Monte Carlo Tree Search algorithm and sets it as the turn."""
+    #    t0 = time.time()
+    #    root = MontecarloTreeSearchNode(observation, self.heuristic, None)
+    #    self.forward_model_visits += root.extend(forward_model, self.visited_states)
+    #    current_node = root
+#
+    #    while time.time() - t0 < budget - 0.12:
+    #        best_child = current_node.get_best_child_by_ucb(self.c_value)
+    #        if best_child.get_amount_of_children() > 0:
+    #            current_node = best_child
+    #        else:
+    #            if not best_child.get_is_unvisited() and not best_child.get_is_terminal(forward_model):
+    #                self.forward_model_visits += best_child.extend(forward_model, self.visited_states)
+    #                best_child = best_child.get_random_child()
+    #            reward, fm_visits = best_child.rollout(forward_model, self.visited_states)
+    #            self.forward_model_visits += fm_visits
+    #            best_child.backpropagate(reward)
+    #            current_node = root
+#
+    #    # retrieve the turn
+    #    current_node = root
+    #    for i in range(observation.get_game_parameters().get_action_points_per_turn()):
+    #        best_child = current_node.get_best_child_by_average()
+    #        if best_child is None:
+    #            self.turn.append(None)
+    #            continue
+    #        self.turn.append(best_child.get_action() if best_child is not None else None)
+    #        current_node = best_child
 # endregion
 
 # region Override

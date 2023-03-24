@@ -1,3 +1,4 @@
+from collections import defaultdict
 from typing import List
 from games.asmacag.asmacag_card_type import AsmacagCardType
 from games.asmacag.asmacag_card import AsmacagCard
@@ -12,11 +13,12 @@ class AsmacagFitnessEvaluator(FitnessEvaluator):
         self.heuristic = heuristic
 
 # region Methods
-    def evaluate(self, parameters: List[int], observation: 'AsmacagObservation', forward_model: 'AsmacagForwardModel') -> float:
+    def evaluate(self, parameters: List[int], observation: 'AsmacagObservation', forward_model: 'AsmacagForwardModel', visited_states: defaultdict) -> float:
         """Calculates the fitness of a turn given by N-Tuple Bandit Online Evolution as a parameter list, playing it from the given `Observation`."""
         turn = self.ntboe_to_turn(parameters)
         for action in turn:
             forward_model.step(observation, action)
+            visited_states[observation] += 1
         return self.heuristic.get_reward(observation)
     
     def ntboe_to_turn(self, ntboe_parameters: List[int]) -> List['AsmacagAction']:

@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from io import TextIOWrapper
-from typing import Optional
+from typing import List, Optional
 from games.action import Action
 from games.observation import Observation
 from games.game_state import GameState
@@ -51,18 +51,28 @@ class Game:
 
         # Run players' turns while the game is not finished
         while not self.forward_model.is_terminal(self.game_state):
-            action = self.play_turn(players[self.game_state.get_current_turn()], budget, verbose, enforce_time)
-
-            if self.save_file is not None:
-                save_str += f"{self.game_state.get_current_turn()!s} {action!s}\n"
-
+            for action in self.play_turn(players[self.game_state.get_current_turn()], budget, verbose, enforce_time):
+                if self.save_file is not None:
+                    save_str += f"{self.game_state.get_current_turn()!s} {action!s}\n"
+                
             self.forward_model.on_turn_ended(self.game_state)
+        #while not self.forward_model.is_terminal(self.game_state):
+        #    action = self.play_turn(players[self.game_state.get_current_turn()], budget, verbose, enforce_time)
+#
+        #    if self.save_file is not None:
+        #        save_str += f"{self.game_state.get_current_turn()!s} {action!s}\n"
+#
+        #    if self.forward_model.is_turn_finished(self.game_state):
+        #        players[self.game_state.get_current_turn()].set_timeout(False)
+        #        self.step += 1
+#
+        #    self.forward_model.on_turn_ended(self.game_state)
 
         if self.save_file is not None:
             self.save_file.write(save_str)
             self.save_file.close()
 
-    def play_turn(self, player: 'Player', budget: float, verbose: bool, enforce_time: bool) -> 'Action':
+    def play_turn(self, player: 'Player', budget: float, verbose: bool, enforce_time: bool) -> None:
         """Performs a `Player` turn."""
         if verbose:
             print("")
@@ -71,44 +81,80 @@ class Game:
             print("---------------------------------------- ")
             print(f"{self.game_state}\n")
 
-        while not self.forward_model.is_turn_finished(self.game_state):
-            # Observable part of the GameState
-            observation = self.game_state.get_observation()
+        observation = self.game_state.get_observation()
+        if enforce_time:
+            try:
+                func_timeout.func_timeout(budget, self.think, args=[player, observation, budget])
+            except func_timeout.FunctionTimedOut:
+                if verbose:
+                    print("Too much time thinking!")
+        else:
+            self.think(player, observation, budget)
 
-            # When enforce_time is True, the player has budget seconds to think.
-            # If they take more than that, a random action is played instead.
-            if enforce_time:
-                try:
-                    action = func_timeout.func_timeout(budget, self.think, args=[player, observation, budget])
-                except func_timeout.FunctionTimedOut:
-                    if verbose:
-                        print("Too much time thinking!")
-                    action = self.think(player, observation, budget)
-            else:
-                action = self.think(player, observation, budget)
-
+        for i in range(self.game_state.get_game_parameters().get_action_points_per_turn()):
+            action = player.get_action(i)
             if action is None:
                 if verbose:
                     print("Player didn't return an action. A random action was selected!")
-                action = self.get_random_action(observation)
+                action = self.get_random_action(self.game_state.get_observation())
 
             if verbose:
                 print(f"Player {self.game_state.get_current_turn()} selects {action!s}.")
 
-            self.forward_model.step(self.game_state, action)
+            try:
+                print(f"turn: {self.game_state.get_current_turn()}")
+                prev = self.game_state.get_observation()
+                self.forward_model.step(self.game_state, action)
+            except:
+                print("Invalid action")
+                print(len(player.turn))
+                print(", ".join([str(a) for a in player.turn]))
+                print(f"Action --> {action}")
+                print(f"Observation --> {self.game_state.get_observation()}")
+                print(f"Original observation --> {observation}")
+                print(f"Previous observation --> {prev}")
+                print(player)
 
-            if verbose:
-                print(f"Score: [{self.game_state.get_player_0_score()}] - [{self.game_state.get_player_1_score()}]")
-            return action
+            yield action
 
+        #while not self.forward_model.is_turn_finished(self.game_state):
+        #    # Observable part of the GameState
+        #    observation = self.game_state.get_observation()
+#
+        #    # When enforce_time is True, the player has budget seconds to think.
+        #    # If they take more than that, a random action is played instead.
+        #    if enforce_time:
+        #        try:
+        #            action = func_timeout.func_timeout(budget, self.think, args=[player, observation, budget])
+        #        except func_timeout.FunctionTimedOut:
+        #            if verbose:
+        #                print("Too much time thinking!")
+        #            player.set_timeout()
+        #            action = self.think(player, observation, budget)
+        #    else:
+        #        action = self.think(player, observation, budget)
+#
+        #    if action is None:
+        #        if verbose:
+        #            print("Player didn't return an action. A random action was selected!")
+        #        action = self.get_random_action(observation)
+#
+        #    if verbose:
+        #        print(f"Player {self.game_state.get_current_turn()} selects {action!s}.")
+#
+        #    self.forward_model.step(self.game_state, action)
+#
+        #    if verbose:
+        #        print(f"Score: [{self.game_state.get_player_0_score()}] - [{self.game_state.get_player_1_score()}]")
+        #    return action
+        
     def think(self, player: 'Player', observation: 'Observation', budget: float) -> 'Action':
         """Requires the `Player` to decide, given an `Observation`, what `Action` to play and returns it."""
         return player.think(observation, self.forward_model, budget)
 
     def get_random_action(self, observation: 'Observation') -> 'Action':
         """Returns a random valid `Action` for the state defined in the given `Observation`."""
-        actions = observation.get_actions()
-        return random.choice(actions)
+        return observation.get_random_action()
 # endregion
 
 # region Getters and Setters

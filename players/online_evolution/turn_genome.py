@@ -1,3 +1,4 @@
+from collections import defaultdict
 from typing import List
 from games import Action, Observation, ForwardModel
 import random
@@ -9,16 +10,20 @@ class TurnGenome:
         self.reward = 0
 
 # region Methods
-    def random(self, observation: 'Observation', forward_model: 'ForwardModel'):
+    def random(self, observation: 'Observation', forward_model: 'ForwardModel', visited_states: defaultdict) -> int:
         """Fills up this genome with random valid actions"""
         self.actions.clear()
         self.reward = 0
+        fm_visits = 0
         while not forward_model.is_terminal(observation) and not forward_model.is_turn_finished(observation):
             action = observation.get_random_action()
             self.actions.append(action)
             forward_model.step(observation, action)
+            visited_states[observation] += 1
+            fm_visits += 1
+        return fm_visits
 
-    def crossover(self, parent_a: 'TurnGenome', parent_b: 'TurnGenome', observation: 'Observation', forward_model: 'ForwardModel'):
+    def crossover(self, parent_a: 'TurnGenome', parent_b: 'TurnGenome', observation: 'Observation', forward_model: 'ForwardModel', visited_states: defaultdict) -> int:
         """Fills up this genome with a crossover of the two parents"""
         self.reward = 0
         actions_count = min(observation.get_game_parameters().get_action_points_per_turn(), len(self.actions))
@@ -42,11 +47,14 @@ class TurnGenome:
 
             # if no action was added, add a random one
             if not added:
-                self.actions[i] = observation.get_random_action()
+                action = observation.get_random_action()
+                self.actions[i] = action
 
             forward_model.step(observation, self.actions[i])
+            visited_states[observation] += 1
+            return actions_count
 
-    def mutate_at_random_index(self, observation: 'Observation', forward_model: 'ForwardModel') -> None:
+    def mutate_at_random_index(self, observation: 'Observation', forward_model: 'ForwardModel', visited_states: defaultdict) -> int:
         """Mutates this genome at a random action of the turn while keeping the whole turn valid. Note that the'Observation'state is not preserved."""
         mutation_index = random.randrange(len(self.actions))
         for i in range(len(self.actions)):
@@ -54,9 +62,12 @@ class TurnGenome:
                 self.actions[i] = observation.get_random_action()
             elif i > mutation_index:
                 if not observation.is_action_valid(self.actions[i]):
+                    print(f"mutate_at_random_index: action {self.actions[i]} is not valid, replacing with random action")
                     self.actions[i] = observation.get_random_action()
 
             forward_model.step(observation, self.actions[i])
+            visited_states[observation] += 1
+            return len(self.actions)
 
     def clone(self) -> 'TurnGenome':
         """Returns a clone of this genome"""

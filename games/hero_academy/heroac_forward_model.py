@@ -102,7 +102,7 @@ class HeroAcademyForwardModel(ForwardModel):
             or self.current_player_cant_play(game_state)
 
     def is_turn_finished(self, game_state: Union['HeroAcademyGameState', 'HeroAcademyObservation']) -> bool:
-        return game_state.action_points_left == 0
+        return game_state.action_points_left <= 0 or self.current_player_cant_play(game_state)
 # endregion
 
 # region Helpers

@@ -38,7 +38,7 @@ class HeroAcademyUnit:
             self.power,
             self.range,
             self.resistance,
-            self.pos,
+            deepcopy(self.pos),
             deepcopy(self.equipement)
         )
 
@@ -51,7 +51,7 @@ class HeroAcademyUnit:
         other.power = self.power
         other.range = self.range
         other.resistance = self.resistance   
-        other.pos = self.pos
+        other.pos = deepcopy(self.pos)
         other.equipement = deepcopy(self.equipement)
 # endregion
 

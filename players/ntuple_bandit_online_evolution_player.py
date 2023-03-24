@@ -36,6 +36,11 @@ class NTupleBanditOnlineEvolutionPlayer(Player):
 # region Methods
     def think(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> 'Action':
         """Computes a list of Action for a complete turn using the N-Tuple Bandit Online Evolution and returns them in order each time it's called during the turn."""
+        if self.timeout: 
+            if len(self.turn) > 0:
+                return self.turn.pop(0)
+            return None
+        
         if observation.get_action_points_left() == observation.get_game_parameters().get_action_points_per_turn():
             self.turn.clear()
             self.bandits1D.clear()
@@ -44,6 +49,10 @@ class NTupleBanditOnlineEvolutionPlayer(Player):
             self.currents.clear()
             self.turn.clear()
             self.compute_turn(observation, forward_model, budget, self.initializations)
+
+        if len(self.turn) == 0:
+            return None
+            
         return self.turn.pop(0)
 
     def create_bandits(self) -> None:
@@ -68,7 +77,8 @@ class NTupleBanditOnlineEvolutionPlayer(Player):
             population = self.get_neighbours(current, self.neighbours, self.mutation_rate)
             new_current = self.get_best_individual(population)
             observation.copy_into(new_observation)
-            new_score = self.fitness.evaluate(new_current, new_observation, forward_model)
+            new_score = self.fitness.evaluate(new_current, new_observation, forward_model, self.visited_states)
+            self.forward_model_visits += len(new_current)
             if new_score > score:
                 current = new_current
                 score = new_score
@@ -100,6 +110,8 @@ class NTupleBanditOnlineEvolutionPlayer(Player):
             n = self.fitness.get_parameter_from_action(act)
             individual.append(n)
             forward_model.step(observation, act)
+            self.visited_states[observation] += 1
+            self.forward_model_visits += 1
         return individual
 
     def update_bandits(self, individual: List[int], score: float) -> None:
