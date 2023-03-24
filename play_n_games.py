@@ -1,6 +1,7 @@
 import math
 import sys
 from typing import List
+import func_timeout
 import scipy.stats as ss
 import time
 import datetime
@@ -84,13 +85,17 @@ def get_dimensions(conf: 'ConfigurationReader') -> List[int]:
 
 
 def run_n_games(gm: 'Game', pl1: 'Player', pl2: 'Player', n_gms: int,
-                budget: int, verbose: bool, enforce_time: bool) -> List[int]:
+                budget: int, rounds: int, verbose: bool, enforce_time: bool) -> List[int]:
     """Run n_gms games and return the number of wins for each player and the number of ties."""
     wins1 = 0
     wins2 = 0
     ties = 0
+    timeouts = 0
     for i in tqdm(range(n_gms), desc="Games"):
-        gm.run(pl1, pl2, budget, verbose, enforce_time)
+        try:
+            func_timeout.func_timeout(budget * (rounds / 2), gm.run, args=[pl1, pl2, budget, verbose, enforce_time])
+        except func_timeout.FunctionTimedOut:
+            timeouts += 1
 
         if game.get_winner() == 0:
             wins1 += 1
@@ -147,6 +152,7 @@ if __name__ == '__main__':
     verbose = conf.get("verbose")
     enforce_time = conf.get("enforce_time")
     budget = conf.get("budget")
+    rounds = conf.get("rounds")
 
     game = get_game(game_name)
     heuristic = get_heuristic(heuristic_name)
@@ -163,12 +169,12 @@ if __name__ == '__main__':
     wins2 = 0
     ties = 0
     t0 = time.time()
-    w1, w2, t = run_n_games(game, player1, player2, int(n_games/2), budget, verbose, enforce_time)
+    w1, w2, t = run_n_games(game, player1, player2, int(n_games/2), budget, rounds, verbose, enforce_time)
     wins1 += w1
     wins2 += w2
     ties += t
 
-    w1, w2, t = run_n_games(game, player2, player1, int(n_games/2), budget, verbose, enforce_time)
+    w1, w2, t = run_n_games(game, player2, player1, int(n_games/2), budget, rounds, verbose, enforce_time)
     wins2 += w1
     wins1 += w2
     ties += t
@@ -206,6 +212,10 @@ if __name__ == '__main__':
     result.set("wins1", wins1)
     result.set("wins2", wins2)
     result.set("ties", ties)
+    result.set("player_1_forward_model_visits", player1.get_forward_model_visits() / n_games)
+    result.set("player_1_visited_states", player1.get_visited_states_count() / n_games)
+    result.set("player_2_forward_model_visits", player2.get_forward_model_visits() / n_games)
+    result.set("player_2_visited_states", player2.get_visited_states_count() / n_games)
     result.set("p_value", p_value)
     result.set("processing_time", tf)
     result.set("date", datetime.datetime.now().strftime("%Y-%m-%d"))

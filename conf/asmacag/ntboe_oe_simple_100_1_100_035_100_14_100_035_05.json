@@ -5,6 +5,7 @@
   "n_games": 100,
   "heuristic_name": "simple",
   "budget": 1,
+  "rounds": 100,
   "verbose": false,
   "enforce_time": true,
   "n_neighbours": 100,
