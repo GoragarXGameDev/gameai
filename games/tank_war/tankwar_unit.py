@@ -42,4 +42,12 @@ class TankWarUnit:
 # region Overrides
     def __str__(self) -> str:
         return f"Unit[{self.unit_type.name}, {self.pos}]"
+    
+    def __eq__(self, __o: object) -> bool:
+        if not isinstance(__o, TankWarUnit):
+            return False
+        return self.unit_type == __o.unit_type and self.pos == __o.pos
+    
+    def __hash__(self) -> int:
+        return int(str(self.unit_type.value) + str(self.pos[0]) + str(self.pos[1]))
 # endregion

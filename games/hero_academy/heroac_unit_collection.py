@@ -117,7 +117,16 @@ class HeroAcademyUnitCollection:
 
 # region Override
     def __str__(self) -> str:
-        """Get a string representation of the collection."""
         units_str = ", ".join([str(unit) for unit in self.units])
         return f"UnitsCollection(units={units_str})"
+    
+    def __eq__(self, __o: object) -> bool:
+        if not isinstance(__o, HeroAcademyUnitCollection):
+            return False
+        return self.units == __o.units
+    
+    def __hash__(self) -> int:
+        if len(self.units) == 0:
+            return 0
+        return int("".join([str(unit.__hash__()) for unit in self.units]))
 # endregion

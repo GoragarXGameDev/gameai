@@ -12,6 +12,11 @@ class GameState(ABC):
         pass
 
     @abstractmethod
+    def get_action_points_left(self) -> int:
+        """Returns the number of action points left"""
+        pass
+
+    @abstractmethod
     def get_current_turn(self) -> int:
         """Returns the current turn"""
         pass

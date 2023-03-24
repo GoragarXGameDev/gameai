@@ -1,3 +1,4 @@
+from collections import defaultdict
 from typing import List, Tuple
 from copy import deepcopy
 from games.tank_war.tankwar_unit_type import TankWarUnitType
@@ -103,6 +104,19 @@ class TankWarUnitCollection:
 
 # region Overrides
     def __str__(self) -> str:
-        """Get a string representation of the collection."""
         return f"Tanks: {self.get_tanks_positions()}, Recyclers: {self.get_recyclers_positions()}, Tiles: {self.get_tiles_positions()}"
-# endregion
+    
+    def __eq__(self, __o: object) -> bool:
+        if not isinstance(__o, TankWarUnitCollection):
+            return False
+        return self.units == __o.units
+    
+    def __hash__(self) -> int:
+        if len(self.units) == 0:
+            return 0
+        unit_dict = defaultdict(int)
+        for card in self.units:
+            unit_dict[card] += 1
+        hashed = "".join([str(unit.__hash__()) + str(unit_dict[unit]) for unit in unit_dict])
+        return int(hashed)
+# endregion)

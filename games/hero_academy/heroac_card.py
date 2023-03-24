@@ -30,9 +30,13 @@ class HeroAcademyCard:
 
 # region Override
     def __str__(self) -> str:
-        """Get string representation of card."""
         return f"Card[{self.value.name}]"
     
     def __eq__(self, __o: object) -> bool:
+        if not isinstance(__o, HeroAcademyCard):
+            return False
         return self.value.name == __o.value.name and self.card_type.name == __o.card_type.name
+    
+    def __hash__(self) -> int:
+        return int(str(self.value.value) + str(self.card_type.value))
 # endregion

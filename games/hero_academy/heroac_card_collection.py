@@ -1,3 +1,4 @@
+from collections import defaultdict
 from typing import List
 from games.hero_academy.heroac_card import HeroAcademyCard
 from games.hero_academy.heroac_unit_collection import HeroAcademyUnitCollection
@@ -63,7 +64,20 @@ class HeroAcademyCardCollection:
 
 # region Override
     def __str__(self) -> str:
-        """Get a string representation of the collection."""
         cards_srt = ", ".join([str(card) for card in self.cards])
         return f"CardCollection(cards={cards_srt})"
+    
+    def __eq__(self, __o: object) -> bool:
+        if not isinstance(__o, HeroAcademyCardCollection):
+            return False
+        return self.cards == __o.cards
+    
+    def __hash__(self) -> int:
+        if len(self.cards) == 0:
+            return 0
+        card_dict = defaultdict(int)
+        for card in self.cards:
+            card_dict[card] += 1
+        hashed = "".join([str(card.__hash__()) + str(card_dict[card]) for card in card_dict])
+        return int(hashed)
 # endregion

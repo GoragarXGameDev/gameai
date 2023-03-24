@@ -150,10 +150,7 @@ class HeroAcademyUnit:
         dmg = self.get_bonus_attack(is_on_attack_tile)
         res = other.resistance
         for card in other.get_defense_equipement():
-            if card.get_card_type() == HeroAcademyCardValue.SHINING_HELM:
-                res += 0.1 * other.resistance
-            else:
-                res += 0.2 * other.resistance
+            res += 0.1 * other.resistance if card.get_card_type() == HeroAcademyCardValue.SHINING_HELM else res + 0.2 * other.resistance
         intake = int(dmg * (100 - res) / 100)
         other.set_hp(other.get_hp() - intake)
 # endregion
@@ -179,7 +176,6 @@ class HeroAcademyUnit:
 
 # region Override
     def __str__(self) -> str:
-        """Return string representation of unit."""""
         return (
             f"Unit[{self.card.get_value().name}, HP: {self.hp} / {self.max_hp}, POS: {self.pos}]"
             #f"Speed: {self.speed}\n"
@@ -190,9 +186,13 @@ class HeroAcademyUnit:
             #f"Equipement: {self.equipement}"
         )
     
-    def __eq__(self, other: 'HeroAcademyUnit') -> bool:
-        """Check if two units are equal."""
-        return self.card == other.card and self.hp == other.hp and self.max_hp == other.max_hp and self.speed == other.speed \
-            and self.power == other.power and self.range == other.range and self.resistance == other.resistance and self.pos == other.pos \
-            and self.equipement == other.equipement
+    def __eq__(self, __o: object) -> bool:
+        if not isinstance(__o, HeroAcademyUnit):
+            return False
+        return self.card.get_value() == __o.card.get_value() and self.hp == __o.hp and self.pos == __o.pos and self.equipement == __o.equipement
+    
+    def __hash__(self) -> int:
+        hashed = f"{self.card.__hash__()}{self.hp}{self.pos[0]}{self.pos[1]}"
+        hashed += "".join([str(card.__hash__()) for card in self.equipement])
+        return int(hashed)
 # endregion

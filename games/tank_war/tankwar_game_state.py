@@ -64,6 +64,9 @@ class TankWarGameState(GameState):
     def get_current_turn(self) -> int:
         return self.current_turn
     
+    def get_action_points_left(self) -> int:
+        return self.action_points_left
+
     def get_game_parameters(self) -> 'TankWarGameParameters':
         return self.game_parameters
     

@@ -163,4 +163,18 @@ class TankWarObservation(Observation):
                 f"UNITS P2: {self.player_1_units!s}\n"
                 f"SCORE P2: {self.player_1_score!s}\n"
                 f"ACTION POINTS LEFT: {self.action_points_left!s}")
+    
+    def __eq__(self, __o: object) -> bool:
+        if not isinstance(__o, TankWarObservation):
+            return False
+        return self.current_turn == __o.current_turn and self.player_0_units == __o.player_0_units and self.player_0_score == __o.player_0_score \
+            and self.player_1_units == __o.player_1_units and self.player_1_score == __o.player_1_score and self.action_points_left == __o.action_points_left \
+            and self.player_0_resources == __o.player_0_resources and self.player_1_resources == __o.player_1_resources and self.player_0_resources_next_round == __o.player_0_resources_next_round \
+            and self.player_1_resources_next_round == __o.player_1_resources_next_round
+    
+    def __hash__(self) -> int:
+        hashed = f"{self.current_turn}{self.action_points_left}{self.player_0_score}{self.player_1_score}"
+        hashed += f"{self.player_0_units.__hash__()}{self.player_1_units.__hash__()}"
+        hashed += f"{self.player_0_resources}{self.player_1_resources}{self.player_0_resources_next_round}{self.player_1_resources_next_round}"
+        return hash(hashed)
 #endregion

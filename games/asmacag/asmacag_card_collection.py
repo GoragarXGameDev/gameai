@@ -1,3 +1,4 @@
+from collections import defaultdict
 from typing import Iterable, List
 from games.asmacag.asmacag_card import AsmacagCard
 import random
@@ -86,4 +87,18 @@ class AsmacagCardCollection:
 
     def __len__(self):
         return len(self.cards)
+    
+    def __eq__(self, __o: object) -> bool:
+        if not isinstance(__o, AsmacagCardCollection):
+            return False
+        return self.cards == __o.cards
+    
+    def __hash__(self) -> int:
+        if len(self.cards) == 0:
+            return 0
+        card_dict = defaultdict(int)
+        for card in self.cards:
+            card_dict[card] += 1
+        hashed = "".join([str(card.__hash__()) + str(card_dict[card]) for card in card_dict])
+        return int(hashed)
 # endregion

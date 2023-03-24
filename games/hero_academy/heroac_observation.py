@@ -107,7 +107,7 @@ class HeroAcademyObservation(Observation):
             else:
                 # Equipment given to unit
                 units = self.player_0_units if self.current_turn == 0 else self.player_1_units
-                return units.get_unit_in_position(action.get_unit().get_pos()) is not None
+                return action.get_unit() in units.get_available_units()
 
 # endregion
 
@@ -237,7 +237,29 @@ class HeroAcademyObservation(Observation):
         return (f"TURN: {self.current_turn!s}\n"
                 f"SCORE P1: {self.player_0_score!s}\n"
                 f"CARDS P1: {self.player_0_cards!s}\n"
+                f"UNITS P1: {self.player_0_units!s}\n"
                 f"SCORE P2: {self.player_1_score!s}\n"
                 f"CARDS P2: {self.player_1_cards!s}\n"
+                f"UNITS P2: {self.player_1_units!s}\n"
                 f"ACTION POINTS LEFT: {self.action_points_left!s}")
+    
+    def __eq__(self, __o: object) -> bool:
+        if not isinstance(__o, HeroAcademyObservation):
+            return False
+        return (self.current_turn == __o.current_turn and
+                self.action_points_left == __o.action_points_left and
+                self.player_0_score == __o.player_0_score and
+                self.player_1_score == __o.player_1_score and
+                self.player_0_cards == __o.player_0_cards and
+                self.player_1_cards == __o.player_1_cards and
+                self.player_0_deck == __o.player_0_deck and
+                self.player_1_deck == __o.player_1_deck and
+                self.player_0_units == __o.player_0_units and
+                self.player_1_units == __o.player_1_units)
+    
+    def __hash__(self) -> int:
+        hashed = f"{self.current_turn}{self.action_points_left}{self.player_0_score}{self.player_1_score}"
+        hashed += f"{self.player_0_cards.__hash__()}{self.player_1_cards.__hash__()}{self.player_0_deck.__hash__()}{self.player_1_deck.__hash__()}"
+        hashed += f"{self.player_0_units.__hash__()}{self.player_1_units.__hash__()}"
+        return hash(hashed)
 #endregion

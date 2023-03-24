@@ -25,7 +25,7 @@ class AsmacagObservation(Observation):
                 self.randomise()
 
 # region Methods
-    def clone(self) -> 'Observation':
+    def clone(self) -> 'AsmacagObservation':
         """Creates a deep copy of the `Observation` and returns it."""
         new_observation = AsmacagObservation(None)
         new_observation.game_parameters = self.game_parameters
@@ -128,4 +128,24 @@ class AsmacagObservation(Observation):
                 f"SCORE P2: {self.player_1_score!s}\n"
                 f"FACTOR: {self.factor!s}\n"
                 f"ACTION POINTS LEFT: {self.action_points_left!s}")
+    
+    def __eq__(self, __o: object) -> bool:
+        if not isinstance(__o, AsmacagObservation):
+            return False
+        return (self.game_parameters == __o.game_parameters and
+                self.current_turn == __o.current_turn and
+                self.player_0_hand == __o.player_0_hand and
+                self.player_1_hand == __o.player_1_hand and
+                self.board == __o.board and
+                self.main_deck == __o.main_deck and
+                self.discard_deck == __o.discard_deck and
+                self.player_0_score == __o.player_0_score and
+                self.player_1_score == __o.player_1_score and
+                self.factor == __o.factor and
+                self.action_points_left == __o.action_points_left)
+    
+    def __hash__(self) -> int:
+        hashed = f"{self.current_turn}{self.action_points_left}{self.player_0_score}{self.player_1_score}{self.factor}"
+        hashed += f"{self.player_0_hand.__hash__()}{self.player_1_hand.__hash__()}{self.board.__hash__()}{self.main_deck.__hash__()}"
+        return hash(hashed)
 # endregion

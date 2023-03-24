@@ -22,7 +22,7 @@ class HeroAcademyForwardModel(ForwardModel):
             return False
         
         action_pos = deepcopy(action.get_position()) if action.get_position() is not None else None
-        unit = deepcopy(action.get_unit()) if action.get_unit() is not None else None
+        unit = action.get_unit().clone() if action.get_unit() is not None else None
         
         cards = game_state.player_0_cards if game_state.current_turn == 0 else game_state.player_1_cards
         units = game_state.player_0_units if game_state.current_turn == 0 else game_state.player_1_units
@@ -37,7 +37,6 @@ class HeroAcademyForwardModel(ForwardModel):
                 self.update_score(game_state)
                 return True
             elif unit is not None:
-
                 units.get_unit_in_position(deepcopy(unit.get_pos())).get_equipement().append(card)
                 cards.remove_card(card)
                 self.update_score(game_state)
