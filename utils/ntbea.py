@@ -39,11 +39,11 @@ class Ntbea:
                 new_bandit = Bandit2D(self.c_value)
                 self.bandits2D.append(new_bandit)
 
-    def run(self, n_games: int, budget: int) -> List[int]:
+    def run(self, n_games: int, budget: int, rounds: int) -> List[int]:
         """Run the NTBEA algorithm."""
         # initialize the bandits
         l_currents = []
-        current, best_score = self.initialize_bandits(n_games, budget)
+        current, best_score = self.initialize_bandits(n_games, budget, rounds)
         n_iterations = 0
         print("Current: " + str(current))
 
@@ -51,7 +51,7 @@ class Ntbea:
             l_currents.append(current)
             l_neighbours = self.get_neighbours(current)
             best_neighbour = self.get_best_neighbour(l_neighbours)
-            score = self.evaluate(best_neighbour, n_games, budget)
+            score = self.evaluate(best_neighbour, n_games, budget, rounds)
             self.update_bandits(best_neighbour, score)
 
             if score >= best_score:
@@ -63,13 +63,13 @@ class Ntbea:
 
         return current
 
-    def evaluate_individual(self, individual, n_games, budget):
-        score = self.evaluate(individual, n_games, budget)
+    def evaluate_individual(self, individual, n_games, budget, rounds):
+        score = self.evaluate(individual, n_games, budget, rounds)
         self.update_bandits(individual, score)
         print(str(individual) + " - Score: " + str(score))
         return individual, score
 
-    def initialize_bandits(self, n_games: int, budget: int):
+    def initialize_bandits(self, n_games: int, budget: int, rounds: int):
         """Create n_initializations random individuals and evaluate them. Update the bandits with the results.
         Returns the best individual."""
         l_individuals = []
@@ -81,8 +81,8 @@ class Ntbea:
             l_individuals.append(individual)
 
         # Evaluate the individuals
-        results = Parallel(n_jobs=2)(
-            delayed(self.evaluate_individual)(individual, n_games, budget)
+        results = Parallel(n_jobs=5)(
+            delayed(self.evaluate_individual)(individual, n_games, budget, rounds)
             for individual in l_individuals
         )
 
@@ -110,12 +110,12 @@ class Ntbea:
                 self.bandits2D[k].update(element1, element2, score)
                 k += 1
 
-    def evaluate(self, individual: List[int], n_games: int, budget: int) -> float:
+    def evaluate(self, individual: List[int], n_games: int, budget: int, rounds: int) -> float:
         """Evaluates the given individual and returns the score."""
         parameters = []
         for i in range(self.n_parameters):
             parameters.append(self.parameters_values[i][individual[i]])
-        return self.fitness.evaluate(parameters, n_games, budget)
+        return self.fitness.evaluate(parameters, n_games, budget, rounds)
 
     def get_neighbours(self, current: List[int]) -> List[List[int]]:
         """Returns a list of neighbours of the given individual."""

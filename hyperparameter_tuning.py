@@ -1,7 +1,6 @@
 from games.asmacag import AsmacagGameParameters, AsmacagForwardModel, AsmacagGame
 from heuristics import SimpleHeuristic
-from utils import GameEvaluatorOE
-from utils import Ntbea
+from utils import GameEvaluatorOE, Ntbea
 import random
 
 
@@ -24,9 +23,10 @@ if __name__ == '__main__':
     params = [param_population_size, param_mutation_rate, param_survival_rate]
     n_games = 4
     budget = 1
+    rounds = 100
 
     ntbea = Ntbea(params, asmacag_evaluator, c_value, n_neighbours, mutation_rate, n_initializations)
-    best_params = ntbea.run(n_games, budget)
+    best_params = ntbea.run(n_games, budget, rounds)
 
     print("Best parameters: " + str(best_params))
     print("Population size: " + str(param_population_size[best_params[0]]))
