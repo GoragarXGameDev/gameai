@@ -1,7 +1,6 @@
 import math
 import sys
 from typing import List
-import func_timeout
 import scipy.stats as ss
 import time
 import datetime
@@ -90,16 +89,11 @@ def run_n_games(gm: 'Game', pl1: 'Player', pl2: 'Player', n_gms: int,
     wins1 = 0
     wins2 = 0
     ties = 0
-    timeouts = 0
-    for i in tqdm(range(n_gms), desc="Games"):
-        try:
-            func_timeout.func_timeout(budget * (rounds / 2), gm.run, args=[pl1, pl2, budget, verbose, enforce_time])
-        except func_timeout.FunctionTimedOut:
-            timeouts += 1
-
-        if game.get_winner() == 0:
+    for _ in tqdm(range(n_gms), desc="Games"):
+        winner = gm.run(pl1, pl2, budget, rounds, verbose, enforce_time)
+        if winner == 0:
             wins1 += 1
-        elif game.get_winner() == 1:
+        elif winner == 1:
             wins2 += 1
         else:
             ties += 1

@@ -34,26 +34,35 @@ class NTupleBanditOnlineEvolutionPlayer(Player):
         self.turn = []  # selected turn to play
 
 # region Methods
-    def think(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> 'Action':
+    def think(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> None:
         """Computes a list of Action for a complete turn using the N-Tuple Bandit Online Evolution and returns them in order each time it's called during the turn."""
-        if self.timeout: 
-            if len(self.turn) > 0:
-                return self.turn.pop(0)
-            return None
-        
-        if observation.get_action_points_left() == observation.get_game_parameters().get_action_points_per_turn():
-            self.turn.clear()
-            self.bandits1D.clear()
-            self.bandits2D.clear()
-            self.create_bandits()
-            self.currents.clear()
-            self.turn.clear()
-            self.compute_turn(observation, forward_model, budget, self.initializations)
+        self.turn.clear()
+        self.bandits1D.clear()
+        self.bandits2D.clear()
+        self.create_bandits()
+        self.currents.clear()
+        self.turn.clear()
 
-        if len(self.turn) == 0:
-            return None
-            
-        return self.turn.pop(0)
+        t0 = time.time()
+        current, score = self.valid_initialization(observation, forward_model, self.initializations)
+        new_observation = observation.clone()
+        while time.time() - t0 < budget - 0.01:
+            population = self.get_neighbours(current, self.neighbours, self.mutation_rate)
+            new_current = self.get_best_individual(population)
+            observation.copy_into(new_observation)
+            new_score = self.fitness.evaluate(new_current, new_observation, forward_model, self.visited_states)
+            self.forward_model_visits += len(new_current)
+            if new_score > score:
+                current = new_current
+                score = new_score
+            self.update_bandits(new_current, new_score)
+        self.turn = self.fitness.ntboe_to_turn(current)
+
+    def get_action(self, index: int) -> 'Action':
+        """Returns the next action in the turn."""
+        if index < len(self.turn):
+            return self.turn[index]
+        return None
 
     def create_bandits(self) -> None:
         """Create the empty 1D and 2D bandits."""
@@ -67,23 +76,6 @@ class NTupleBanditOnlineEvolutionPlayer(Player):
             for j in range(i + 1, self.dimension_amount):
                 new_bandit = Bandit2D(self.c_value)
                 self.bandits2D.append(new_bandit)
-
-    def compute_turn(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float, initializations: int) -> None:
-        """Computes a list of Action for a complete turn using the N-Tuple Bandit Online Evolution it as the turn."""
-        t0 = time.time()
-        current, score = self.valid_initialization(observation, forward_model, initializations)
-        new_observation = observation.clone()
-        while time.time() - t0 < budget - 0.01:
-            population = self.get_neighbours(current, self.neighbours, self.mutation_rate)
-            new_current = self.get_best_individual(population)
-            observation.copy_into(new_observation)
-            new_score = self.fitness.evaluate(new_current, new_observation, forward_model, self.visited_states)
-            self.forward_model_visits += len(new_current)
-            if new_score > score:
-                current = new_current
-                score = new_score
-            self.update_bandits(new_current, new_score)
-        self.turn = self.fitness.ntboe_to_turn(current)
 
     def valid_initialization(self, observation: 'Observation', forward_model: 'ForwardModel', initializations: int) -> Tuple[List[int], float]:
         """Generates a given amount of complete valid turns randomly and adds their stats to the bandit-based model, returning the best turn found and the score it yielded."""

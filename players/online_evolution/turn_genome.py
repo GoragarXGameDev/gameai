@@ -52,9 +52,9 @@ class TurnGenome:
 
             forward_model.step(observation, self.actions[i])
             visited_states[observation] += 1
-            return actions_count
+        return actions_count
 
-    def mutate_at_random_index(self, observation: 'Observation', forward_model: 'ForwardModel', visited_states: defaultdict) -> int:
+    def mutate_at_random_index(self, observation: 'Observation', forward_model: 'ForwardModel', visited_states: defaultdict, verbose: bool = False) -> int:
         """Mutates this genome at a random action of the turn while keeping the whole turn valid. Note that the'Observation'state is not preserved."""
         mutation_index = random.randrange(len(self.actions))
         for i in range(len(self.actions)):
@@ -62,12 +62,13 @@ class TurnGenome:
                 self.actions[i] = observation.get_random_action()
             elif i > mutation_index:
                 if not observation.is_action_valid(self.actions[i]):
-                    print(f"mutate_at_random_index: action {self.actions[i]} is not valid, replacing with random action")
+                    if verbose:
+                        print(f"mutate_at_random_index: action {self.actions[i]} is not valid, replacing with random action")
                     self.actions[i] = observation.get_random_action()
 
             forward_model.step(observation, self.actions[i])
             visited_states[observation] += 1
-            return len(self.actions)
+        return len(self.actions)
 
     def clone(self) -> 'TurnGenome':
         """Returns a clone of this genome"""

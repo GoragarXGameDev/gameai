@@ -13,27 +13,20 @@ class GreedyTurnPlayer(Player):
         self.turn = []
 
 # region Methods
-    def think(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> 'Action':
-        """Think about the next action to take."""
-        if self.timeout: 
-            if len(self.turn) > 0:
-                return self.turn.pop(0)
-            return None
+    def think(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> None:
+        """Computes a list of action for a complete turn using the Greedy Turn algorithm and sets it as the turn."""
+        self.turn.clear()
         
-        if observation.get_action_points_left() == observation.get_game_parameters().get_action_points_per_turn():
-            self.turn.clear()
-            self.compute_turn(observation, forward_model, budget)
-
-        if len(self.turn) == 0:
-            return None
-        
-        return self.turn.pop(0)
-    
-    def compute_turn(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> None:
         t0 = time.time()
         root = GreedyTurnNode(observation, self.heuristic, None)
         best_reward = -math.inf
         self.run_nodes(root, forward_model, budget, best_reward, 0, t0)
+
+    def get_action(self, index: int) -> 'Action':
+        """Returns the next action in the turn."""
+        if index < len(self.turn):
+            return self.turn[index]
+        return None
         
     def run_nodes(self, node: 'GreedyTurnNode', forward_model: 'ForwardModel', budget: float, best_reward: float, index: int, t0: time) -> None:
         if index != 0:
@@ -41,7 +34,7 @@ class GreedyTurnPlayer(Player):
             self.forward_model_visits += 1
         child: 'GreedyTurnNode' = None
         for child in node.extend(forward_model):
-            if time.time() - t0 > budget - 0.05:
+            if time.time() - t0 > budget:
                 return
             if index == child.get_observation().get_game_parameters().get_action_points_per_turn() - 1:
                 reward = self.heuristic.get_reward(child.get_observation())

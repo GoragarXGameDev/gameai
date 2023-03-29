@@ -18,24 +18,10 @@ class OnlineEvolutionPlayer(Player):
 
 
 # region Methods
-    def think(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> 'Action':
+    def think(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> None:
         """Computes a list of actions for a complete turn using the Online Evolution algorithm and returns them in order each time it's called during the turn."""
-        if self.timeout: 
-            if len(self.turn) > 0:
-                return self.turn.pop(0)
-            return None
-        
-        if observation.get_action_points_left() == observation.get_game_parameters().get_action_points_per_turn():
-            self.turn.clear()
-            self.compute_turn(observation, forward_model, budget)
+        self.turn.clear()
 
-        if len(self.turn) == 0:
-            return None
-            
-        return self.turn.pop(0)
-
-    def compute_turn(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> None:
-        """Computes a list of action for a complete turn using the Online Evolution algorithm and sets it as the turn."""
         t0 = time.time()
         population: List['TurnGenome'] = []
         killed: List['TurnGenome'] = []
@@ -81,10 +67,16 @@ class OnlineEvolutionPlayer(Player):
                 # mutate
                 if random.random() < self.mutation_rate:
                     observation.copy_into(new_observation)
-                    self.forward_model_visits += killed_genome.mutate_at_random_index(new_observation, forward_model, self.visited_states)
+                    self.forward_model_visits += killed_genome.mutate_at_random_index(new_observation, forward_model, self.visited_states, self.verbose)
 
         # select the best genome to use for the turn
         self.turn = population[0].get_actions()
+
+    def get_action(self, index: int) -> 'Action':
+        """Returns the next action in the turn."""
+        if index < len(self.turn):
+            return self.turn[index]
+        return None
 # endregion
 
 # region Override
