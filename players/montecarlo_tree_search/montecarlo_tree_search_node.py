@@ -5,6 +5,7 @@ from heuristics import Heuristic
 import math
 import random
 import sys
+import numpy as np
 
 class MontecarloTreeSearchNode:
     def __init__(self, observation: 'Observation', heuristic: 'Heuristic', action: 'Action', parent: 'MontecarloTreeSearchNode' = None):
@@ -46,7 +47,73 @@ class MontecarloTreeSearchNode:
             forward_model.step(new_observation, new_observation.get_random_action())
             visited[new_observation] += 1
             fm_visitis += 1
+        
         return self.heuristic.get_reward(new_observation), fm_visitis
+    
+    def full_rollout(self, forward_model: 'ForwardModel', visited: defaultdict) -> Tuple[float, int]:
+        """Performs a random rollout from the `Node` and returns the reward."""
+        new_observation = self.observation.clone()
+        fm_visitis = 0
+        original_turn = self.observation.get_current_turn()
+        reward = 0
+        for action in range(2, self.observation.get_game_parameters().get_action_points_per_turn() + 1):
+            if forward_model.is_terminal(new_observation):
+                break
+
+            forward_model.step(new_observation, new_observation.get_random_action())
+            visited[new_observation] += 1
+            fm_visitis += 1
+            if forward_model.is_turn_finished(new_observation):
+                reward = self.heuristic.get_reward(new_observation)
+                
+            forward_model.on_turn_ended(new_observation)
+
+            if new_observation.get_current_turn() != original_turn \
+                and action == self.observation.get_game_parameters().get_action_points_per_turn():
+                reward = -self.heuristic.get_reward(new_observation)
+
+        return reward, fm_visitis
+    
+    def deterministic_rollout(self, forward_model: 'ForwardModel', visited: defaultdict) -> Tuple[float, int]:
+        """Performs a deterministic rollout from the `Node` and returns the reward."""
+        new_observation = self.observation.clone()
+        fm_visitis = 0
+        original_turn = self.observation.get_current_turn()
+        reward = 0
+        for action_number in range(2, self.observation.get_game_parameters().get_action_points_per_turn() + 1):
+            if forward_model.is_terminal(new_observation):
+                break
+
+            best_action = None
+            best_reward = -math.inf
+            for roll_action in new_observation.get_actions():
+                current_observation = new_observation.clone()
+                forward_model.step(current_observation, roll_action)
+                visited[current_observation] += 1
+                fm_visitis += 1
+                reward = self.heuristic.get_reward(current_observation)
+                if reward > best_reward:
+                    best_reward = reward
+                    best_action = roll_action
+
+            forward_model.step(new_observation, best_action)
+
+            if forward_model.is_turn_finished(new_observation):
+                reward = self.heuristic.get_reward(new_observation)
+                
+            forward_model.on_turn_ended(new_observation)
+
+            if new_observation.get_current_turn() != original_turn \
+                and action_number == self.observation.get_game_parameters().get_action_points_per_turn():
+                reward = -self.heuristic.get_reward(new_observation)
+
+        return reward, fm_visitis
+    
+    def reward_children(self) -> None:
+        """Rewards all children of the `Node` by the reward of the `Node`."""
+        for child in self.children:
+            reward = child.heuristic.get_reward(child.observation)
+            child.reward += reward
 
     def backpropagate(self, reward: float) -> None:
         """Backpropagates the reward to the `Node` and its parents."""
@@ -62,9 +129,9 @@ class MontecarloTreeSearchNode:
         """Returns the `ASMACAG.Game.Action.Action` of the `Node`."""
         return self.action
 
-    def get_average_reward(self) -> float:
+    def get_average_reward(self) -> np.float64:
         """Returns the average reward of the `Node`"""
-        return self.reward / self.visits if self.visits > 0 else -math.inf
+        return np.float64(self.reward / self.visits if self.visits > 0 else -math.inf)
 
     def get_best_child_by_average(self) -> Optional['MontecarloTreeSearchNode']:
         """Returns the best child of the `Node` by average reward."""
@@ -86,7 +153,9 @@ class MontecarloTreeSearchNode:
         
         for child in self.children:
             epsilon = random.random() / 1000
-            if child.visits != 0:
+            if c_value == 0:
+                ucb = child.get_average_reward()
+            elif child.visits != 0:
                 ucb = child.get_average_reward() + c_value * math.sqrt(math.log(self.visits) / child.visits) + epsilon
             else:
                 ucb = sys.float_info.max - epsilon
