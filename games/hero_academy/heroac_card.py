@@ -35,7 +35,7 @@ class HeroAcademyCard:
     def __eq__(self, __o: object) -> bool:
         if not isinstance(__o, HeroAcademyCard):
             return False
-        return self.value.name == __o.value.name and self.card_type.name == __o.card_type.name
+        return self.value.value == __o.value.value and self.card_type.value == __o.card_type.value
     
     def __hash__(self) -> int:
         return int(str(self.value.value) + str(self.card_type.value))

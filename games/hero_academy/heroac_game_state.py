@@ -104,6 +104,18 @@ class HeroAcademyGameState(GameState):
             self.player_1_score = score
         else:
             self.player_0_score = score
+
+    def get_current_player_units(self) -> 'HeroAcademyUnitCollection':
+        if self.current_turn == 0:
+            return self.player_0_units
+        else:
+            return self.player_1_units
+        
+    def get_enemy_player_units(self) -> 'HeroAcademyUnitCollection':
+        if self.current_turn == 0:
+            return self.player_1_units
+        else:
+            return self.player_0_units
 # endregion
 
 #region Override

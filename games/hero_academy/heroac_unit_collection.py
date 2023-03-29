@@ -62,9 +62,9 @@ class HeroAcademyUnitCollection:
             positions.extend(enemies.get_unit_positions())
             moves = unit.possible_moves(board_size, board[unit.get_pos()] == HeroAcademyTileType.SPEED, positions)
             attack = enemies.can_be_attacked(unit)
-            heal = units.can_be_attacked(unit)
+            heal = units.can_be_healed(unit)
             if unit.get_card().get_value().is_unit_value() and (attack or heal or len(moves) > 0):
-                playable_units.append((unit, moves, attack, heal))
+                playable_units.append((unit.clone(), moves, attack, heal))
         return playable_units
         
     def get_units_in_range(self, other: 'HeroAcademyUnit') -> List['HeroAcademyUnit']:

@@ -189,7 +189,7 @@ class HeroAcademyUnit:
     def __eq__(self, __o: object) -> bool:
         if not isinstance(__o, HeroAcademyUnit):
             return False
-        return self.card.get_value() == __o.card.get_value() and self.hp == __o.hp and self.pos == __o.pos and self.equipement == __o.equipement
+        return self.card == __o.card and self.hp == __o.hp and self.pos == __o.pos and self.equipement == __o.equipement
     
     def __hash__(self) -> int:
         hashed = f"{self.card.__hash__()}{self.hp}{self.pos[0]}{self.pos[1]}"

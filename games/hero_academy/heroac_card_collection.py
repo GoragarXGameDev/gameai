@@ -48,7 +48,7 @@ class HeroAcademyCardCollection:
         cards = []
         for card in self.cards:
             if units.is_card_playable(card) or enemies.is_card_playable(card, True):
-                cards.append(card)
+                cards.append(card.clone())
         return cards
     
     def get_unit_cards(self) -> List['HeroAcademyCard']:

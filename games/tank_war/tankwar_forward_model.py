@@ -74,7 +74,6 @@ class TankWarForwardModel(ForwardModel):
             self.update_turn_resources(game_state)
             game_state.current_turn = (game_state.current_turn + 1) % 2
             game_state.action_points_left = game_state.game_parameters.action_points_per_turn
-            print(game_state.player_0_score, game_state.player_1_score)
 
     def is_terminal(self, game_state: Union['TankWarGameState', 'TankWarObservation']) -> bool:
         return len(game_state.player_0_units.get_tiles_positions()) == game_state.game_parameters.board_size ** 2 \

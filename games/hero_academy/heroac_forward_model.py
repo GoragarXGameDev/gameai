@@ -97,9 +97,11 @@ class HeroAcademyForwardModel(ForwardModel):
             game_state.action_points_left = game_state.game_parameters.action_points_per_turn
 
     def is_terminal(self, game_state: Union['HeroAcademyGameState', 'HeroAcademyObservation']) -> bool:
-        self.update_terminal_score(game_state)
-        return not game_state.player_0_units.crystals_alive() or not game_state.player_1_units.crystals_alive() \
+        terminal = not game_state.player_0_units.crystals_alive() or not game_state.player_1_units.crystals_alive() \
             or self.current_player_cant_play(game_state)
+        if self.current_player_cant_play(game_state):
+            self.update_terminal_score(game_state)
+        return terminal
 
     def is_turn_finished(self, game_state: Union['HeroAcademyGameState', 'HeroAcademyObservation']) -> bool:
         return game_state.action_points_left <= 0 or self.current_player_cant_play(game_state)
