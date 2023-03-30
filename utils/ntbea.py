@@ -25,7 +25,7 @@ class Ntbea:
         self.create_bandits()  # initialize the 1D and 2D bandits
         self.fitness = fitness
         self.n_iterations = 10
-        self.cores = 8
+        self.cores = 1
 
     def set_cores(self, cores):
         self.cores = cores
@@ -44,17 +44,16 @@ class Ntbea:
                 new_bandit = Bandit2D(self.c_value)
                 self.bandits2D.append(new_bandit)
 
-    def run(self, n_games: int, budget: int, rounds: int) -> List[int]:
+    def run(self, n_games: int, budget: int, n_iteration: int, rounds: int) -> List[int]:
         """Run the NTBEA algorithm."""
-        self.n_iterations = rounds
+        self.n_iterations = n_iteration
         # initialize the bandits
         l_currents = []
-        t0 = time.time()
         current, best_score = self.initialize_bandits(n_games, budget, rounds)
-        n_iterations = 0
-        print("Current: " + str(current))
 
-        while n_iterations < self.n_iterations:
+        print("Current: " + str(current))
+        iteration = 0
+        while iteration < self.n_iterations:
             l_currents.append(current)
             l_neighbours = self.get_neighbours(current)
             best_neighbour = self.get_best_neighbour(l_neighbours)
@@ -66,7 +65,7 @@ class Ntbea:
                 current = best_neighbour
             print("Best neighbour: " + str(best_neighbour) + " Score: " + str(score) +
                   " Current: " + str(current) + " Best score: " + str(best_score))
-            n_iterations += 1
+            iteration += 1
 
         return current
 

@@ -19,18 +19,19 @@ if __name__ == '__main__':
     n_initializations = 100
     n_games = 20
     budget = 1
-    n_iterations = 100
+    rounds = 100
+    n_iterations = 10
 
     param_population_size = [50, 100, 150, 200, 250, 300, 350, 400, 450, 500]
     param_mutation_rate = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
     param_survival_rate = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
     params = [param_population_size, param_mutation_rate, param_survival_rate]
 
-    cores = 8
+    cores = 4
 
     ntbea = Ntbea(params, asmacag_evaluator, c_value, n_neighbours, mutation_rate, n_initializations)
     ntbea.set_cores(cores)
-    best_params = ntbea.run(n_games, budget, n_iterations)
+    best_params = ntbea.run(n_games, budget, n_iterations, rounds)
 
     print("Best parameters: " + str(best_params))
     print("Population size: " + str(param_population_size[best_params[0]]))
