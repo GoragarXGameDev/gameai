@@ -1,3 +1,4 @@
+import time
 from typing import List
 from utils.bandit_1d import Bandit1D
 from utils.bandit_2d import Bandit2D
@@ -24,6 +25,10 @@ class Ntbea:
         self.create_bandits()  # initialize the 1D and 2D bandits
         self.fitness = fitness
         self.n_iterations = 10
+        self.cores = 1
+
+    def set_cores(self, cores):
+        self.cores = cores
 
 # region Methods
     def create_bandits(self) -> None:
@@ -39,15 +44,16 @@ class Ntbea:
                 new_bandit = Bandit2D(self.c_value)
                 self.bandits2D.append(new_bandit)
 
-    def run(self, n_games: int, budget: int, rounds: int) -> List[int]:
+    def run(self, n_games: int, budget: int, n_iteration: int, rounds: int) -> List[int]:
         """Run the NTBEA algorithm."""
+        self.n_iterations = n_iteration
         # initialize the bandits
         l_currents = []
         current, best_score = self.initialize_bandits(n_games, budget, rounds)
-        n_iterations = 0
-        print("Current: " + str(current))
 
-        while n_iterations < self.n_iterations:
+        print("Current: " + str(current))
+        iteration = 0
+        while iteration < self.n_iterations:
             l_currents.append(current)
             l_neighbours = self.get_neighbours(current)
             best_neighbour = self.get_best_neighbour(l_neighbours)
@@ -59,7 +65,7 @@ class Ntbea:
                 current = best_neighbour
             print("Best neighbour: " + str(best_neighbour) + " Score: " + str(score) +
                   " Current: " + str(current) + " Best score: " + str(best_score))
-            n_iterations += 1
+            iteration += 1
 
         return current
 
@@ -81,7 +87,7 @@ class Ntbea:
             l_individuals.append(individual)
 
         # Evaluate the individuals
-        results = Parallel(n_jobs=5)(
+        results = Parallel(n_jobs=self.cores)(
             delayed(self.evaluate_individual)(individual, n_games, budget, rounds)
             for individual in l_individuals
         )
@@ -127,12 +133,21 @@ class Ntbea:
             l_neighbours.append(neighbour)
         return l_neighbours
 
+    def evalute_neighbour(self, neighbour: List[int]):
+        """Evaluates the given neighbour and returns the score."""
+        score = self.get_total_ucb(neighbour)
+        return neighbour, score
+
     def get_best_neighbour(self, l_neighbours: List[List[int]]) -> List[int]:
         """Returns the best neighbour of the given list of neighbours."""
-        best_neighbour = None
+        results = Parallel(n_jobs=self.cores)(
+            delayed(self.evalute_neighbour)(neighbour)
+            for neighbour in l_neighbours
+        )
+
         best_score = -math.inf
-        for neighbour in l_neighbours:
-            score = self.get_total_ucb(neighbour)
+        best_neighbour = None
+        for neighbour, score in results:
             if score > best_score:
                 best_score = score
                 best_neighbour = neighbour
