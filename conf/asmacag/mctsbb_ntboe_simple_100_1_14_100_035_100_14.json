@@ -6,18 +6,16 @@
   "verbose": false,
   "enforce_time": true,
   "heuristic_name": "Simple",
-  "player1_name": "NTupleBanditOnlineEvolution",
+  "player1_name": "BridgeBurningMontecarloTreeSearch",
   "player1_config": {
+    "c_value": 1.4
+  },
+  "player2_name": "NTupleBanditOnlineEvolution",
+  "player2_config": {
     "neighbours": 100,
     "mutation_rate": 0.35,
     "initializations": 100,
     "c_value": 1.4
   },
-  "player2_name": "OnlineEvolution",
-  "player2_config": {
-    "population_size": 100,
-    "survival_rate": 0.5,
-    "mutation_rate": 0.35
-  },
-  "result_file": "out/asmacag_ntboe_oe_simple_100_1_100_035_100_14_100_035_05.json"
+  "result_file": "out/asmacag_mctsbb_ntboe_simple_100_1_14_100_035_100_14.json"
 }

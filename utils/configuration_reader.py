@@ -8,4 +8,6 @@ class ConfigurationReader:
             self.data = json.load(f)
 
     def get(self, key):
+        if not key in self.data:
+            return None
         return self.data[key]

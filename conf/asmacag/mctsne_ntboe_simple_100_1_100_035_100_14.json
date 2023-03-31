@@ -1,0 +1,18 @@
+{
+  "game_name": "Asmacag",
+  "n_games": 100,
+  "budget": 1,
+  "rounds": 100,
+  "verbose": false,
+  "enforce_time": true,
+  "heuristic_name": "Simple",
+  "player1_name": "NonExploringMontecarloTreeSearch",
+  "player2_name": "NTupleBanditOnlineEvolution",
+  "player2_config": {
+    "neighbours": 100,
+    "mutation_rate": 0.35,
+    "initializations": 100,
+    "c_value": 1.4
+  },
+  "result_file": "out/asmacag_mctsne_ntboe_simple_100_1_100_035_100_14.json"
+}

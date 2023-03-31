@@ -5,11 +5,11 @@ import scipy.stats as ss
 import time
 import datetime
 from tqdm import tqdm
-from games import Game
+from games import GameParameters, ForwardModel, Game
+from games.asmacag import *
+from games.hero_academy import *
+from games.tank_war import *
 from players.ntuple_bandit_online_evolution import FitnessEvaluator
-from games.asmacag import AsmacagGameParameters, AsmacagForwardModel, AsmacagFitnessEvaluator, AsmacagGame
-from games.hero_academy import HeroAcademyGameParameters, HeroAcademyForwardModel, HeroAcademyGame
-from games.tank_war import TankWarGameParameters, TankWarForwardModel, TankWarGame
 from players import *
 from heuristics import *
 from utils import ConfigurationReader, ResultsWriter
@@ -17,68 +17,45 @@ from utils import ConfigurationReader, ResultsWriter
 
 def get_game(game_name: str) -> 'Game':
     """Given the name of the game to be played, create the corresponding game objects."""
-    game = None
-    if game_name == "asmacag":
-        parameters = AsmacagGameParameters()
-        forward_model = AsmacagForwardModel()
-        game = AsmacagGame(parameters, forward_model)
-    elif game_name == "heroacademy":
-        parameters = HeroAcademyGameParameters()
-        forward_model = HeroAcademyForwardModel()
-        game = HeroAcademyGame(parameters, forward_model)
-    elif game_name == "tankwar":
-        parameters = TankWarGameParameters()
-        forward_model = TankWarForwardModel()
-        game = TankWarGame(parameters, forward_model)
-    return game
+    parameters = get_parameters(game_name)
+    forward_model = get_forward_model(game_name)
+    return eval(game_name + 'Game')(parameters, forward_model)
 
 
-def get_player(player_name: str, heuristic: 'Heuristic', conf: 'ConfigurationReader') -> 'Player':
+def get_player(game: str, player_name: str, heuristic: 'Heuristic', conf: dict = None) -> 'Player':
     """Given the name of the player to be used, create the corresponding Player object."""
-    player = None
-    if player_name == "random":
-        player = RandomPlayer()
-    elif player_name == "greedy":
-        player = GreedyActionPlayer(heuristic)
-    elif player_name == "mcts":
-        c = conf.get("c_mcts")
-        player = MontecarloTreeSearchPlayer(heuristic, c)
-    elif player_name == "oe":
-        population_size = conf.get("population_size")
-        mutation_rate = conf.get("mutation_rate_oe")
-        survival_rate = conf.get("survival_rate")
-        player = OnlineEvolutionPlayer(heuristic, population_size, mutation_rate, survival_rate)
-    elif player_name == "ntboe":
-        n_neighbours = conf.get("n_neighbours")
-        mutation_rate = conf.get("mutation_rate_ntboe")
-        n_initializations = conf.get("n_initializations")
-        c = conf.get("c_ntboe")
-        dimensions = get_dimensions(conf)
-        fitness = get_fitness(conf, heuristic)
-        player = NTupleBanditOnlineEvolutionPlayer(heuristic, fitness, dimensions, c,
-                                                  n_neighbours, mutation_rate, n_initializations)
-    return player
+    player_name += 'Player'
+    if player_name == 'RandomPlayer':
+        return eval(player_name)()
+    if conf is None:
+        return eval(player_name)(heuristic)
+    if player_name == 'NTupleBanditOnlineEvolutionPlayer':
+        conf['fitness'] = get_fitness(game, heuristic)
+        conf['dimensions'] = get_dimensions(game)
+    return eval(player_name)(heuristic, **conf)
 
 
 def get_heuristic(heuristic_name: str) -> 'Heuristic':
     """Given the heuristic name, create the corresponding Heuristic object."""
-    heuristic = None
-    if heuristic_name == "simple":
-        heuristic = SimpleHeuristic()
-    return heuristic
+    return eval(heuristic_name + 'Heuristic')()
 
 
-def get_fitness(conf: 'ConfigurationReader', heuristic: 'Heuristic') -> 'FitnessEvaluator':
+def get_fitness(game: str, heuristic: 'Heuristic') -> 'FitnessEvaluator':
     """Given the fitness evaluator name, create the corresponding FitnessEvaluator object."""
-    fitness = None
-    if conf.get("game_name") == "asmacag":
-        fitness = AsmacagFitnessEvaluator(heuristic)
-    return fitness
+    return eval(game + 'FitnessEvaluator')(heuristic)
 
 
-def get_dimensions(conf: 'ConfigurationReader') -> List[int]:
+def get_parameters(game: str) -> 'GameParameters':
+    """Given the game name, create the corresponding GameParameters object."""
+    return eval(game + 'GameParameters')()
+
+def get_forward_model(game: str) -> 'ForwardModel':
+    """Given the game name, create the corresponding ForwardModel object."""
+    return eval(game + 'ForwardModel')()
+
+def get_dimensions(game: str) -> List[int]:
     dimensions = None
-    if conf.get("game_name") == "asmacag":
+    if game == 'Asmacag':
         dimensions = [38, 38, 38]
     return dimensions
 
@@ -140,7 +117,9 @@ if __name__ == '__main__':
 
     game_name = conf.get("game_name")
     player1_name = conf.get("player1_name")
+    player1_config = conf.get("player1_config")
     player2_name = conf.get("player2_name")
+    player2_config = conf.get("player2_config")
     n_games = conf.get("n_games")
     heuristic_name = conf.get("heuristic_name")
     verbose = conf.get("verbose")
@@ -150,8 +129,8 @@ if __name__ == '__main__':
 
     game = get_game(game_name)
     heuristic = get_heuristic(heuristic_name)
-    player1 = get_player(player1_name, heuristic, conf)
-    player2 = get_player(player2_name, heuristic, conf)
+    player1 = get_player(game_name, player1_name, heuristic, player1_config)
+    player2 = get_player(game_name, player2_name, heuristic, player2_config)
 
     print("Game           : {}".format(game_name))
     print("Heuristic      : {}".format(heuristic_name))
