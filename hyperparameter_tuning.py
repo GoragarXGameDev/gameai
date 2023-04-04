@@ -4,8 +4,7 @@ from utils import GameEvaluatorOE, Ntbea
 import random
 
 
-if __name__ == '__main__':
-    # random.seed(6)
+def do_ASMACAG_OE(budget: float):
     # ASMACAG parameters
     parameters = AsmacagGameParameters()
     forward_model = AsmacagForwardModel()
@@ -14,11 +13,10 @@ if __name__ == '__main__':
     asmacag_evaluator = GameEvaluatorOE(game, SimpleHeuristic())
 
     c_value = 1.4
-    n_neighbours = 100
+    n_neighbours = 10
     mutation_rate = 0.5
-    n_initializations = 100
+    n_initializations = 10
     n_games = 20
-    budget = 1
     rounds = 100
     n_iterations = 10
 
@@ -33,7 +31,21 @@ if __name__ == '__main__':
     ntbea.set_cores(cores)
     best_params = ntbea.run(n_games, budget, n_iterations, rounds)
 
-    print("Best parameters: " + str(best_params))
-    print("Population size: " + str(param_population_size[best_params[0]]))
-    print("Mutation rate: " + str(param_mutation_rate[best_params[1]]))
-    print("Survival rate: " + str(param_survival_rate[best_params[2]]))
+    out_str = "ASMACAG,OE," + str(budget) + "," + \
+              str(param_population_size[best_params[0]]) + "," + \
+              str(param_mutation_rate[best_params[1]]) + "," + \
+              str(param_survival_rate[best_params[2]])
+
+    # write to file
+    out_filename = "out/hyper_asmacag_oe_" + str(budget) + ".txt"
+    with open(out_filename, "w") as f:
+        f.write(out_str + " \n")
+
+
+if __name__ == '__main__':
+    do_ASMACAG_OE(0.1)
+    #do_ASMACAG_OE(1.0)
+    #do_ASMACAG_OE(3.0)
+    #do_ASMACAG_OE(5.0)
+
+

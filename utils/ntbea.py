@@ -17,8 +17,8 @@ class Ntbea:
         self.n_parameters = len(parameters)         # number of parameters
         self.parameters_values = parameters         # possible values per parameter
 
-        self.bandits1D: List['Bandit1D'] = []  # 1D bandits
-        self.bandits2D: List['Bandit2D'] = []  # 2D bandits
+        self.bandits1D: List[Bandit1D] = []  # 1D bandits
+        self.bandits2D: List[Bandit2D] = []  # 2D bandits
         self.bandit1D_amount = self.n_parameters  # amount of 1D bandits
         self.bandit2D_amount = int((self.n_parameters * (self.n_parameters - 1)) / 2)  # amount of 2D bandits
 
@@ -44,7 +44,7 @@ class Ntbea:
                 new_bandit = Bandit2D(self.c_value)
                 self.bandits2D.append(new_bandit)
 
-    def run(self, n_games: int, budget: int, n_iteration: int, rounds: int) -> List[int]:
+    def run(self, n_games: int, budget: float, n_iteration: int, rounds: int) -> List[int]:
         """Run the NTBEA algorithm."""
         self.n_iterations = n_iteration
         # initialize the bandits
@@ -75,7 +75,7 @@ class Ntbea:
         print(str(individual) + " - Score: " + str(score))
         return individual, score
 
-    def initialize_bandits(self, n_games: int, budget: int, rounds: int):
+    def initialize_bandits(self, n_games: int, budget: float, rounds: int):
         """Create n_initializations random individuals and evaluate them. Update the bandits with the results.
         Returns the best individual."""
         l_individuals = []
@@ -116,7 +116,7 @@ class Ntbea:
                 self.bandits2D[k].update(element1, element2, score)
                 k += 1
 
-    def evaluate(self, individual: List[int], n_games: int, budget: int, rounds: int) -> float:
+    def evaluate(self, individual: List[int], n_games: int, budget: float, rounds: int) -> float:
         """Evaluates the given individual and returns the score."""
         parameters = []
         for i in range(self.n_parameters):
@@ -172,5 +172,4 @@ class Ntbea:
                 k += 1
 
         return total_ucb
-
 # endregion

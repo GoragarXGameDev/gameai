@@ -5,11 +5,11 @@ from typing import List
 
 
 class GameEvaluatorOE:
-    def __init__(self, game: 'Game', heuristic: 'Heuristic'):
+    def __init__(self, game: Game, heuristic: Heuristic):
         self.game = game
         self.heuristic = heuristic
 
-    def evaluate(self, params: List[float], n_games: int, budget: int, rounds: int) -> float:
+    def evaluate(self, params: List[float], n_games: int, budget: float, rounds: int) -> float:
         """Play n_games OE vs random_player and greedy_action_player and return the pct of wins of the first."""
         p1 = OnlineEvolutionPlayer(self.heuristic, int(params[0]), params[1], params[2])
         p2 = RandomPlayer()
@@ -26,7 +26,7 @@ class GameEvaluatorOE:
         points += w2 + ties / 2
         return points / n_games
 
-    def play_games(self, n_games: int, budget: int, rounds: int, p1: 'Player', p2: 'Player') -> List[int]:
+    def play_games(self, n_games: int, budget: float, rounds: int, p1: Player, p2: Player) -> List[int]:
         """Play n_games between p1 and p2 and return the number of wins of p1."""
         w1 = 0
         w2 = 0
