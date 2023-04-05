@@ -13,12 +13,12 @@ def do_ASMACAG_OE(budget: float):
     asmacag_evaluator = GameEvaluatorOE(game, SimpleHeuristic())
 
     c_value = 1.4
-    n_neighbours = 10
+    n_neighbours = 100
     mutation_rate = 0.5
-    n_initializations = 10
+    n_initializations = 100
     n_games = 20
     rounds = 100
-    n_iterations = 10
+    n_iterations = 100
 
     param_population_size = [50, 100, 150, 200, 250, 300, 350, 400, 450, 500]
     param_mutation_rate = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
@@ -43,9 +43,9 @@ def do_ASMACAG_OE(budget: float):
 
 
 if __name__ == '__main__':
-    do_ASMACAG_OE(0.1)
-    #do_ASMACAG_OE(1.0)
-    #do_ASMACAG_OE(3.0)
-    #do_ASMACAG_OE(5.0)
+    do_ASMACAG_OE(0.5)
+    do_ASMACAG_OE(1.0)
+    do_ASMACAG_OE(3.0)
+    do_ASMACAG_OE(5.0)
 
 
