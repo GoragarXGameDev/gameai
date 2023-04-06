@@ -1,3 +1,5 @@
+from sys import argv
+
 from games.asmacag import AsmacagGameParameters, AsmacagForwardModel, AsmacagGame
 from heuristics import SimpleHeuristic
 from utils import GameEvaluatorOE, Ntbea
@@ -13,11 +15,11 @@ def do_asmacag_oe(budget: float):
     asmacag_evaluator = GameEvaluatorOE(game, SimpleHeuristic())
 
     c_value = 1.4
-    n_neighbours = 100
-    n_initializations = 100
+    n_neighbours = 10
+    n_initializations = 5
     n_games = 20
     rounds = 100
-    n_iterations = 100
+    n_iterations = 5
 
     param_population_size = [50, 100, 150, 200, 250, 300, 350, 400, 450, 500]
     param_mutation_rate = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
@@ -44,9 +46,13 @@ def do_asmacag_oe(budget: float):
 
 
 if __name__ == '__main__':
-    do_asmacag_oe(0.5)
-    do_asmacag_oe(1.0)
-    do_asmacag_oe(3.0)
-    do_asmacag_oe(5.0)
+    game_name = argv[1]
+    algorithm = argv[2]
+    budget = float(argv[3])
+
+    if game_name == "asmacag":
+        if algorithm == "oe":
+            do_asmacag_oe(budget)
+
 
 

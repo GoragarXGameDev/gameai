@@ -27,7 +27,7 @@ class Ntbea:
         self.cores = 1
         self.str_debug = ""
         self.do_str_debug = False
-        self.l_perfects = []
+        self.l_bests = []
 
 # region set/get
     def set_cores(self, cores):
@@ -43,7 +43,7 @@ class Ntbea:
 
 # region Methods
     def create_bandits(self) -> None:
-        """Create the empty 1D and 2D bandits. """
+        """ Create the empty 1D and 2D bandits. """
         # Create empty 1D bandits
         for i in range(self.n_parameters):
             new_bandit = Bandit1D(self.c_value)
@@ -58,8 +58,9 @@ class Ntbea:
     def run(self, n_games: int, budget: float, n_iteration: int, rounds: int) -> List[int]:
         """Run the NTBEA algorithm."""
         self.n_iterations = n_iteration
-        self.l_perfects = []
+
         current, best_score = self.initialize_bandits(n_games, budget, rounds)
+        self.l_bests.append(current)
 
         if self.do_str_debug:
             self.str_debug += "Current: " + str(current) + "\n"
@@ -74,11 +75,12 @@ class Ntbea:
             self.update_bandits(best_neighbour, score)
 
             if score >= best_score:
+                if score == best_score:
+                    self.l_bests.append(best_neighbour)
+                else:
+                    self.l_bests = [best_neighbour]
                 best_score = score
                 current = best_neighbour
-
-            if score == 1.0:
-                self.l_perfects.append(best_neighbour)
 
             if self.do_str_debug:
                 self.str_debug += "Best neighbour: " + str(best_neighbour) + " Score: " + str(score) + \
@@ -87,21 +89,20 @@ class Ntbea:
 
         if self.do_str_debug:
             self.str_debug += "Pre-Final best: " + str(current) + " Score: " + str(best_score) + "\n"
-            for perfect in self.l_perfects:
-                self.str_debug += "Perfect: " + str(perfect) + "\n"
+            for one_best in self.l_bests:
+                self.str_debug += "Perfect: " + str(one_best) + "\n"
 
         # Last step: look for the best individual into current neighbours (and l_perfects)
-        final_best = self.get_the_final_best(current)
+        final_best = self.get_the_final_best()
         self.str_debug += "Final best: " + str(final_best) + "\n"
         return final_best
 
-    def get_the_final_best(self, current):
-        """Look for the best individual into current neighbours (and l_perfects)."""
-        l_neighbours = [current]                           # add current to the list of neighbours
-        l_neighbours += self.l_perfects                    # add perfects to the list of neighbours
-        l_neighbours = self.get_neighbours(current)        # add current neighbours to the list of neighbours
-        for perfect in self.l_perfects:                    # add perfect neighbours to the list of neighbours
-            l_neighbours += self.get_neighbours(perfect)
+    def get_the_final_best(self):
+        """Look for the best individual into current neighbours."""
+        l_neighbours = []
+        l_neighbours += self.l_bests
+        for one_best in self.l_bests:
+            l_neighbours += self.get_neighbours(one_best)
 
         best_neighbour = self.get_best_neighbour_final(l_neighbours)
 
@@ -167,6 +168,8 @@ class Ntbea:
 
     def get_neighbours(self, current: List[int]) -> List[List[int]]:
         """Returns a list of neighbours of the given individual."""
+        """A neighbour of an indiviudal is a copy with one gen changed."""
+        """We add the neighbour and a mutation (changing one gen)"""
         l_neighbours = []
         for i in range(self.n_neighbours):
             neighbour = current.copy()
@@ -174,14 +177,21 @@ class Ntbea:
             neighbour[idx] = random.randint(0, len(self.parameters_values[idx]) - 1)
             if neighbour not in l_neighbours:
                 l_neighbours.append(neighbour)
+
+            # create a mutated version of the neighbour
+            mutation = neighbour.copy()
+            idx = random.randint(0, self.n_parameters - 1)
+            mutation[idx] = random.randint(0, len(self.parameters_values[idx]) - 1)
+            if mutation not in l_neighbours:
+                l_neighbours.append(mutation)
         return l_neighbours
 
-    def evalute_neighbour(self, neighbour: List[int]):
+    def evaluate_neighbour(self, neighbour: List[int]):
         """Evaluates the given neighbour and returns the score."""
         score = self.get_total_ucb(neighbour)
         return neighbour, score
 
-    def evalute_neighbour_final(self, neighbour: List[int]):
+    def evaluate_neighbour_final(self, neighbour: List[int]):
         """Evaluates the given neighbour and returns the score using ucb_final."""
         score = self.get_total_ucb_final(neighbour)
         return neighbour, score
@@ -201,7 +211,7 @@ class Ntbea:
     def get_best_neighbour(self, l_neighbours: List[List[int]]) -> List[int]:
         """Returns the best neighbour of the given list of neighbours."""
         results = Parallel(n_jobs=self.cores)(
-            delayed(self.evalute_neighbour)(neighbour)
+            delayed(self.evaluate_neighbour)(neighbour)
             for neighbour in l_neighbours
         )
 
@@ -211,7 +221,7 @@ class Ntbea:
     def get_best_neighbour_final(self, l_neighbours: List[List[int]]) -> List[int]:
         """Returns the best neighbour of the given list of neighbours. Use ucb_final instead of ucb."""
         results = Parallel(n_jobs=self.cores)(
-            delayed(self.evalute_neighbour_final)(neighbour)
+            delayed(self.evaluate_neighbour_final)(neighbour)
             for neighbour in l_neighbours
         )
 
