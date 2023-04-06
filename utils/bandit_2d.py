@@ -50,6 +50,14 @@ class Bandit2D:
         else:
             return 10e6 + random.random()  # If the element is not in the bandit, return a random big number
 
+    def get_ucb_final(self, element1: int, element2: int) -> float:
+        """Returns the ucb value for a given pair of elements. If it does not exist, returns 0."""
+        element = self.get_element(element1, element2)
+        if element in self.score:
+            return self.score[element] + self.C * math.sqrt(math.log(self.n_total) / self.n[element])
+        else:
+            return 0.0
+
     def get_elements_best_score(self) -> Tuple[int, int]:
         """Returns the pair of elements with the biggest score."""
         best_element = 0

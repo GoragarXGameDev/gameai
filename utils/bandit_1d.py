@@ -33,6 +33,13 @@ class Bandit1D:
         else:
             return 10e6 + random.random()  # If the element is not in the bandit, return a random big number
 
+    def get_ucb_final(self, element: int) -> float:
+        """Returns the ucb value for a given element. If not exists, returns 0."""
+        if element in self.score:
+            return self.score[element] + self.C * math.sqrt(math.log(self.n_total) / self.n[element])
+        else:
+            return 0.0
+
     def get_element_best_score(self) -> int:
         """Returns the element with the biggest score."""
         best_element = 0

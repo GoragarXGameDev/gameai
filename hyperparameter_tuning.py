@@ -1,10 +1,10 @@
 from games.asmacag import AsmacagGameParameters, AsmacagForwardModel, AsmacagGame
 from heuristics import SimpleHeuristic
 from utils import GameEvaluatorOE, Ntbea
-import random
+import smtplib
 
 
-def do_ASMACAG_OE(budget: float):
+def do_asmacag_oe(budget: float):
     # ASMACAG parameters
     parameters = AsmacagGameParameters()
     forward_model = AsmacagForwardModel()
@@ -14,7 +14,6 @@ def do_ASMACAG_OE(budget: float):
 
     c_value = 1.4
     n_neighbours = 100
-    mutation_rate = 0.5
     n_initializations = 100
     n_games = 20
     rounds = 100
@@ -25,13 +24,15 @@ def do_ASMACAG_OE(budget: float):
     param_survival_rate = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
     params = [param_population_size, param_mutation_rate, param_survival_rate]
 
-    cores = 4
+    cores = 8
 
-    ntbea = Ntbea(params, asmacag_evaluator, c_value, n_neighbours, mutation_rate, n_initializations)
+    ntbea = Ntbea(params, asmacag_evaluator, c_value, n_neighbours, n_initializations)
     ntbea.set_cores(cores)
+    ntbea.set_str_debug_on()
     best_params = ntbea.run(n_games, budget, n_iterations, rounds)
 
-    out_str = "ASMACAG,OE," + str(budget) + "," + \
+    out_str = ntbea.get_str_debug()
+    out_str += "ASMACAG,OE," + str(budget) + "," + \
               str(param_population_size[best_params[0]]) + "," + \
               str(param_mutation_rate[best_params[1]]) + "," + \
               str(param_survival_rate[best_params[2]])
@@ -43,9 +44,9 @@ def do_ASMACAG_OE(budget: float):
 
 
 if __name__ == '__main__':
-    do_ASMACAG_OE(0.5)
-    do_ASMACAG_OE(1.0)
-    do_ASMACAG_OE(3.0)
-    do_ASMACAG_OE(5.0)
+    do_asmacag_oe(0.5)
+    do_asmacag_oe(1.0)
+    do_asmacag_oe(3.0)
+    do_asmacag_oe(5.0)
 
 

@@ -1,5 +1,5 @@
 import time
-from typing import List
+from typing import List, Tuple
 from utils.bandit_1d import Bandit1D
 from utils.bandit_2d import Bandit2D
 from utils.game_evaluator_oe import GameEvaluatorOE
@@ -9,10 +9,9 @@ from joblib import Parallel, delayed
 
 
 class Ntbea:
-    def __init__(self, parameters: List[List[float]], fitness: GameEvaluatorOE, c_value: float, n_neighbours: int, mutation_rate: float, n_initializations: int):
+    def __init__(self, parameters: List[List[float]], fitness: GameEvaluatorOE, c_value: float, n_neighbours: int, n_initializations: int):
         self.c_value = c_value                      # c parameter for UCB
         self.n_neighbours = n_neighbours            # amount of neighbours per iteration
-        self.mutation_rate = mutation_rate          # mutation rate
         self.n_initializations = n_initializations  # amount of initial initializations
         self.n_parameters = len(parameters)         # number of parameters
         self.parameters_values = parameters         # possible values per parameter
@@ -26,9 +25,21 @@ class Ntbea:
         self.fitness = fitness
         self.n_iterations = 10
         self.cores = 1
+        self.str_debug = ""
+        self.do_str_debug = False
+        self.l_perfects = []
 
+# region set/get
     def set_cores(self, cores):
         self.cores = cores
+
+    def set_str_debug_on(self):
+        self.do_str_debug = True
+        self.str_debug = ""
+
+    def get_str_debug(self):
+        return self.str_debug
+# endregion
 
 # region Methods
     def create_bandits(self) -> None:
@@ -47,14 +58,16 @@ class Ntbea:
     def run(self, n_games: int, budget: float, n_iteration: int, rounds: int) -> List[int]:
         """Run the NTBEA algorithm."""
         self.n_iterations = n_iteration
-        # initialize the bandits
-        l_currents = []
+        self.l_perfects = []
         current, best_score = self.initialize_bandits(n_games, budget, rounds)
 
-        print("Current: " + str(current))
+        if self.do_str_debug:
+            self.str_debug += "Current: " + str(current) + "\n"
+
         iteration = 0
         while iteration < self.n_iterations:
-            l_currents.append(current)
+            if self.do_str_debug:
+                self.str_debug += "Iteration: " + str(iteration) + "\n"
             l_neighbours = self.get_neighbours(current)
             best_neighbour = self.get_best_neighbour(l_neighbours)
             score = self.evaluate(best_neighbour, n_games, budget, rounds)
@@ -63,16 +76,40 @@ class Ntbea:
             if score >= best_score:
                 best_score = score
                 current = best_neighbour
-            print("Best neighbour: " + str(best_neighbour) + " Score: " + str(score) +
-                  " Current: " + str(current) + " Best score: " + str(best_score))
+
+            if score == 1.0:
+                self.l_perfects.append(best_neighbour)
+
+            if self.do_str_debug:
+                self.str_debug += "Best neighbour: " + str(best_neighbour) + " Score: " + str(score) + \
+                                  " Current: " + str(current) + " Best score: " + str(best_score) + "\n"
             iteration += 1
 
-        return current
+        if self.do_str_debug:
+            self.str_debug += "Pre-Final best: " + str(current) + " Score: " + str(best_score) + "\n"
+            for perfect in self.l_perfects:
+                self.str_debug += "Perfect: " + str(perfect) + "\n"
+
+        # Last step: look for the best individual into current neighbours (and l_perfects)
+        final_best = self.get_the_final_best(current)
+        self.str_debug += "Final best: " + str(final_best) + "\n"
+        return final_best
+
+    def get_the_final_best(self, current):
+        """Look for the best individual into current neighbours (and l_perfects)."""
+        l_neighbours = [current]                           # add current to the list of neighbours
+        l_neighbours += self.l_perfects                    # add perfects to the list of neighbours
+        l_neighbours = self.get_neighbours(current)        # add current neighbours to the list of neighbours
+        for perfect in self.l_perfects:                    # add perfect neighbours to the list of neighbours
+            l_neighbours += self.get_neighbours(perfect)
+
+        best_neighbour = self.get_best_neighbour_final(l_neighbours)
+
+        return best_neighbour
 
     def evaluate_individual(self, individual, n_games, budget, rounds):
         score = self.evaluate(individual, n_games, budget, rounds)
         self.update_bandits(individual, score)
-        print(str(individual) + " - Score: " + str(score))
         return individual, score
 
     def initialize_bandits(self, n_games: int, budget: float, rounds: int):
@@ -92,12 +129,17 @@ class Ntbea:
             for individual in l_individuals
         )
 
+        # Get the best individual
         best_score = -math.inf
         best_individual = None
         for individual, score in results:
-            if score > best_score:
+            if self.do_str_debug:
+                self.str_debug += "G -> " + str(individual) + " : " + str(score) + "\n"
+            if score >= best_score:
                 best_score = score
                 best_individual = individual
+            if score == 1.0:
+                self.l_perfects.append(individual)
         return best_individual, best_score
 
     def update_bandits(self, individual: List[int], score: float) -> None:
@@ -130,13 +172,31 @@ class Ntbea:
             neighbour = current.copy()
             idx = random.randint(0, self.n_parameters - 1)
             neighbour[idx] = random.randint(0, len(self.parameters_values[idx]) - 1)
-            l_neighbours.append(neighbour)
+            if neighbour not in l_neighbours:
+                l_neighbours.append(neighbour)
         return l_neighbours
 
     def evalute_neighbour(self, neighbour: List[int]):
         """Evaluates the given neighbour and returns the score."""
         score = self.get_total_ucb(neighbour)
         return neighbour, score
+
+    def evalute_neighbour_final(self, neighbour: List[int]):
+        """Evaluates the given neighbour and returns the score using ucb_final."""
+        score = self.get_total_ucb_final(neighbour)
+        return neighbour, score
+
+    def get_the_best_on_list(self, l_results: List[Tuple[List[int], float]]) -> List[int]:
+        """Returns the best element of the given list of results."""
+        best_score = -math.inf
+        best_element = None
+        for element, score in l_results:
+            if self.do_str_debug:
+                self.str_debug += "N -> " + str(element) + " : " + str(score) + "\n"
+            if score >= best_score:
+                best_score = score
+                best_element = element
+        return best_element
 
     def get_best_neighbour(self, l_neighbours: List[List[int]]) -> List[int]:
         """Returns the best neighbour of the given list of neighbours."""
@@ -145,13 +205,17 @@ class Ntbea:
             for neighbour in l_neighbours
         )
 
-        best_score = -math.inf
-        best_neighbour = None
-        for neighbour, score in results:
-            if score > best_score:
-                best_score = score
-                best_neighbour = neighbour
+        best_neighbour = self.get_the_best_on_list(results)
+        return best_neighbour
 
+    def get_best_neighbour_final(self, l_neighbours: List[List[int]]) -> List[int]:
+        """Returns the best neighbour of the given list of neighbours. Use ucb_final instead of ucb."""
+        results = Parallel(n_jobs=self.cores)(
+            delayed(self.evalute_neighbour_final)(neighbour)
+            for neighbour in l_neighbours
+        )
+
+        best_neighbour = self.get_the_best_on_list(results)
         return best_neighbour
 
     def get_total_ucb(self, individual: List[int]) -> float:
@@ -169,6 +233,25 @@ class Ntbea:
                 element1 = individual[i]
                 element2 = individual[j]
                 total_ucb += self.bandits2D[k].get_ucb(element1, element2)
+                k += 1
+
+        return total_ucb
+
+    def get_total_ucb_final(self, individual: List[int]) -> float:
+        """Returns the total UCB of the given individual. It use ucb final instead of ucb."""
+        total_ucb = 0
+        # 1D
+        for i in range(self.bandit1D_amount):
+            element = individual[i]
+            total_ucb += self.bandits1D[i].get_ucb_final(element)
+
+        # 2D
+        k = 0
+        for i in range(0, self.n_parameters - 1):
+            for j in range(i + 1, self.n_parameters):
+                element1 = individual[i]
+                element2 = individual[j]
+                total_ucb += self.bandits2D[k].get_ucb_final(element1, element2)
                 k += 1
 
         return total_ucb
