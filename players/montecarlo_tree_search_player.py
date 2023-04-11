@@ -11,7 +11,10 @@ class MontecarloTreeSearchPlayer(Player):
         self.heuristic = heuristic
         self.c_value = c_value
         self.turn = []
+        self.full_rollout = False
 
+    def set_full_rollout_on(self):
+        self.full_rollout = True
 
 # region Methods
     def think(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> None:
@@ -32,7 +35,11 @@ class MontecarloTreeSearchPlayer(Player):
                 if not best_child.get_is_unvisited() and not best_child.get_is_terminal(forward_model):
                     self.forward_model_visits += best_child.extend(forward_model, self.visited_states)
                     best_child = best_child.get_random_child()
-                reward, fm_visits = best_child.rollout(forward_model, self.visited_states)
+
+                if self.full_rollout:
+                    reward, fm_visits = best_child.full_rollout(forward_model, self.visited_states)
+                else:
+                    reward, fm_visits = best_child.rollout(forward_model, self.visited_states)
                 self.forward_model_visits += fm_visits
                 best_child.backpropagate(reward)
                 current_node = root

@@ -139,8 +139,6 @@ class Ntbea:
             if score >= best_score:
                 best_score = score
                 best_individual = individual
-            if score == 1.0:
-                self.l_perfects.append(individual)
         return best_individual, best_score
 
     def update_bandits(self, individual: List[int], score: float) -> None:

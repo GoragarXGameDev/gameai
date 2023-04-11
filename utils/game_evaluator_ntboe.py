@@ -1,18 +1,19 @@
 from games import Game
 from heuristics import Heuristic
-from players import OnlineEvolutionPlayer, RandomPlayer, GreedyActionPlayer, GreedyTurnPlayer
+from players import RandomPlayer, GreedyActionPlayer, GreedyTurnPlayer, \
+    NTupleBanditOnlineEvolutionPlayer
 from typing import List
 
 from utils.game_evaluator import GameEvaluator
 
 
-class GameEvaluatorOE(GameEvaluator):
+class GameEvaluatorNTBOE(GameEvaluator):
     def __init__(self, game: Game, heuristic: Heuristic):
         super().__init__(game, heuristic)
 
     def evaluate(self, params: List[float], n_games: int, budget: float, rounds: int) -> float:
         """Play n_games OE vs random_player and greedy_action_player and return the pct of wins of the first."""
-        player = OnlineEvolutionPlayer(self.heuristic, int(params[0]), params[1], params[2])
+        player = NTupleBanditOnlineEvolutionPlayer(self.heuristic, int(params[0]), params[1], params[2])
         p2 = RandomPlayer()
         p3 = GreedyActionPlayer(self.heuristic)
         p4 = GreedyTurnPlayer(self.heuristic)
