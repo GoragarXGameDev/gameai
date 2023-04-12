@@ -1,7 +1,10 @@
 import time
 from typing import List, Tuple
 
-from players import OnlineEvolutionPlayer
+from games.asmacag import AsmacagFitnessEvaluator
+from heuristics import SimpleHeuristic
+from players import OnlineEvolutionPlayer, NTupleBanditOnlineEvolutionPlayer
+from players.ntuple_bandit_online_evolution import FitnessEvaluator
 from utils.bandit_1d import Bandit1D
 from utils.bandit_2d import Bandit2D
 from utils.game_evaluator import GameEvaluator
@@ -135,6 +138,13 @@ class Ntbea:
         player = None
         if self.algorithm == "oe":
             player = OnlineEvolutionPlayer(self.algorithm_heuristic, int(params[0]), params[1], params[2])
+        elif self.algorithm == "ntboe":
+            dimensions = [38, 38, 38]
+            heuristic = SimpleHeuristic()
+            fitness = AsmacagFitnessEvaluator(heuristic)
+            player = NTupleBanditOnlineEvolutionPlayer(heuristic, fitness, dimensions,
+                                                       params[0], int(params[1]), params[2], int(params[3]))
+
         return self.fitness.evaluate(player, n_games, budget, rounds)
 
     def evaluate_individual(self, individual, n_games, budget, rounds):

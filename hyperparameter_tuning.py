@@ -9,11 +9,7 @@ from games.hero_academy import HeroAcademyGameParameters, HeroAcademyForwardMode
 from games.tank_war import TankWarGameParameters, TankWarForwardModel, TankWarGame
 from heuristics import SimpleHeuristic
 from players import MontecarloTreeSearchPlayer, BridgeBurningMontecarloTreeSearchPlayer
-from utils import GameEvaluatorOE, Ntbea
-
-
-from utils.game_evaluator import GameEvaluator
-from utils.game_evaluator_ntboe import GameEvaluatorNTBOE
+from utils import GameEvaluator, Ntbea
 
 
 def evaluate_mcts(param_c: float, evaluator: GameEvaluator, n_games: int, budget: float, rounds: int):
@@ -122,35 +118,40 @@ def do_oe(game: Game, budget: float, out_filename: str):
 
 def do_ntboe(game: Game, budget: float, out_filename: str):
     pass
-    # evaluator = GameEvaluatorNTBOE(game, SimpleHeuristic())
-    #
-    # c_value = 1.4
-    # n_neighbours = 100
-    # n_initializations = 100
-    # n_games = 30
-    # rounds = 100
-    # n_iterations = 100
-    #
-    # param_population_size = [50, 100, 150, 200, 250, 300, 350, 400, 450, 500]
-    # param_mutation_rate = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-    # param_survival_rate = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-    # params = [param_population_size, param_mutation_rate, param_survival_rate]
-    #
-    # cores = 8
-    #
-    # ntbea = Ntbea(params, evaluator, c_value, n_neighbours, n_initializations)
-    # ntbea.set_cores(cores)
-    # ntbea.set_str_debug_on()
-    # best_params = ntbea.run(n_games, budget, n_iterations, rounds)
-    #
-    # out_str = ntbea.get_str_debug()
-    # out_str += "Best paramameters: " + \
-    #            str(param_population_size[best_params[0]]) + "," + \
-    #            str(param_mutation_rate[best_params[1]]) + "," + \
-    #            str(param_survival_rate[best_params[2]])
+    evaluator = GameEvaluator(game, SimpleHeuristic())
 
-    #with open(out_filename, "w") as f:
-    #    f.write(out_str + " \n")
+    c_value = 1.4
+    n_neighbours = 100
+    n_initializations = 100
+    n_games = 30
+    rounds = 100
+    n_iterations = 100
+
+    param_c_value = [round(0.35 + i*0.35, 2) for i in range(10)]
+    param_n_neighbours = [10 + i*10 for i in range(10)]
+    param_mutation_rate = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    param_n_initialization = [50 + i*50 for i in range(10)]
+    params = [param_c_value, param_n_neighbours, param_mutation_rate, param_n_initialization]
+
+    cores = 8
+
+    ntbea = Ntbea(params, evaluator, c_value, n_neighbours, n_initializations)
+    ntbea.set_cores(cores)
+    ntbea.set_str_debug_on()
+    ntbea.set_algorithm("ntboe")
+    ntbea.set_algorithm_heuristic(SimpleHeuristic())
+
+    best_params = ntbea.run(n_games, budget, n_iterations, rounds)
+
+    out_str = ntbea.get_str_debug()
+    out_str += "Best paramameters: " + \
+        str(param_c_value[best_params[0]]) + "," + \
+        str(param_n_neighbours[best_params[1]]) + "," + \
+        str(param_mutation_rate[best_params[2]]) + "," + \
+        str(param_n_initialization[best_params[3]])
+
+    with open(out_filename, "w") as f:
+        f.write(out_str + " \n")
 
 
 if __name__ == '__main__':
