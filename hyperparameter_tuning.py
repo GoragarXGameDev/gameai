@@ -35,17 +35,29 @@ def evaluate_bbmcts(param_c: float, evaluator: GameEvaluator, n_games: int, budg
     return param_c, score
 
 
-def do_mcts(game: Game, budget: float, out_filename: str):
+def do_mcts_style(game: Game, budget: float, out_filename: str, mcts_type: str):
     evaluator = GameEvaluator(game, SimpleHeuristic())
     params_c = [round(0.35 + i*0.35, 2) for i in range(30)]
     n_games = 60
     rounds = 100
     cores = 8
 
-    results = Parallel(n_jobs=cores)(
-        delayed(evaluate_mcts)(c, evaluator, n_games, budget, rounds)
-        for c in params_c
-    )
+    results = None
+    if mcts_type == "vanilla":
+        results = Parallel(n_jobs=cores)(
+            delayed(evaluate_mcts)(c, evaluator, n_games, budget, rounds)
+            for c in params_c
+        )
+    elif mcts_type == "full":
+        results = Parallel(n_jobs=cores)(
+            delayed(evaluate_mctsfull)(c, evaluator, n_games, budget, rounds)
+            for c in params_c
+        )
+    elif mcts_type == "bb":
+        results = Parallel(n_jobs=cores)(
+            delayed(evaluate_bbmcts)(c, evaluator, n_games, budget, rounds)
+            for c in params_c
+        )
 
     best_c = None
     best_score = -math.inf
@@ -59,62 +71,22 @@ def do_mcts(game: Game, budget: float, out_filename: str):
     out_str += "Best paramameters: " + str(best_c)
     with open(out_filename, "w") as f:
         f.write(out_str + " \n")
+
+
+def do_mcts(game: Game, budget: float, out_filename: str):
+    do_mcts_style(game, budget, out_filename, "vanilla")
 
 
 def do_mcts_full(game: Game, budget: float, out_filename: str):
-    evaluator = GameEvaluator(game, SimpleHeuristic())
-    params_c = [round(0.35 + i*0.35, 2) for i in range(30)]
-    n_games = 60
-    rounds = 100
-    cores = 8
-
-    results = Parallel(n_jobs=cores)(
-        delayed(evaluate_mctsfull)(c, evaluator, n_games, budget, rounds)
-        for c in params_c
-    )
-
-    best_c = None
-    best_score = -math.inf
-    out_str = ""
-    for param_c, score in results:
-        if score >= best_score:
-            best_score = score
-            best_c = param_c
-        out_str += str(param_c) + "," + str(score) + " \n"
-
-    out_str += "Best paramameters: " + str(best_c)
-    with open(out_filename, "w") as f:
-        f.write(out_str + " \n")
+    do_mcts_style(game, budget, out_filename, "full")
 
 
 def do_bbmcts(game: Game, budget: float, out_filename: str):
-    evaluator = GameEvaluator(game, SimpleHeuristic())
-    params_c = [round(0.35 + i*0.35, 2) for i in range(30)]
-    n_games = 60
-    rounds = 100
-    cores = 8
-
-    results = Parallel(n_jobs=cores)(
-        delayed(evaluate_bbmcts)(c, evaluator, n_games, budget, rounds)
-        for c in params_c
-    )
-
-    best_c = None
-    best_score = -math.inf
-    out_str = ""
-    for param_c, score in results:
-        if score >= best_score:
-            best_score = score
-            best_c = param_c
-        out_str += str(param_c) + "," + str(score) + " \n"
-
-    out_str += "Best paramameters: " + str(best_c)
-    with open(out_filename, "w") as f:
-        f.write(out_str + " \n")
+    do_mcts_style(game, budget, out_filename, "bb")
 
 
 def do_oe(game: Game, budget: float, out_filename: str):
-    evaluator = GameEvaluatorOE(game, SimpleHeuristic())
+    evaluator = GameEvaluator(game, SimpleHeuristic())
 
     c_value = 1.4
     n_neighbours = 100
@@ -133,6 +105,9 @@ def do_oe(game: Game, budget: float, out_filename: str):
     ntbea = Ntbea(params, evaluator, c_value, n_neighbours, n_initializations)
     ntbea.set_cores(cores)
     ntbea.set_str_debug_on()
+    ntbea.set_algorithm("oe")
+    ntbea.set_algorithm_heuristic(SimpleHeuristic())
+    ntbea.set_verbose_on()
     best_params = ntbea.run(n_games, budget, n_iterations, rounds)
 
     out_str = ntbea.get_str_debug()
@@ -174,8 +149,8 @@ def do_ntboe(game: Game, budget: float, out_filename: str):
     #            str(param_mutation_rate[best_params[1]]) + "," + \
     #            str(param_survival_rate[best_params[2]])
 
-    with open(out_filename, "w") as f:
-        f.write(out_str + " \n")
+    #with open(out_filename, "w") as f:
+    #    f.write(out_str + " \n")
 
 
 if __name__ == '__main__':

@@ -1,15 +1,17 @@
 import time
 from typing import List, Tuple
+
+from players import OnlineEvolutionPlayer
 from utils.bandit_1d import Bandit1D
 from utils.bandit_2d import Bandit2D
-from utils.game_evaluator_oe import GameEvaluatorOE
+from utils.game_evaluator import GameEvaluator
 import math
 import random
 from joblib import Parallel, delayed
 
 
 class Ntbea:
-    def __init__(self, parameters: List[List[float]], fitness: GameEvaluatorOE, c_value: float, n_neighbours: int, n_initializations: int):
+    def __init__(self, parameters: List[List[float]], fitness: GameEvaluator, c_value: float, n_neighbours: int, n_initializations: int):
         self.c_value = c_value                      # c parameter for UCB
         self.n_neighbours = n_neighbours            # amount of neighbours per iteration
         self.n_initializations = n_initializations  # amount of initial initializations
@@ -28,6 +30,9 @@ class Ntbea:
         self.str_debug = ""
         self.do_str_debug = False
         self.l_bests = []
+        self.algorithm = None
+        self.algorithm_heuristic = None
+        self.verbose = False
 
 # region set/get
     def set_cores(self, cores):
@@ -39,6 +44,15 @@ class Ntbea:
 
     def get_str_debug(self):
         return self.str_debug
+
+    def set_algorithm(self, algorithm):
+        self.algorithm = algorithm
+
+    def set_algorithm_heuristic(self, heuristic):
+        self.algorithm_heuristic = heuristic
+
+    def set_verbose_on(self):
+        self.verbose = True
 # endregion
 
 # region Methods
@@ -59,6 +73,8 @@ class Ntbea:
         """Run the NTBEA algorithm."""
         self.n_iterations = n_iteration
 
+        if self.verbose:
+            print("Initializing bandits...")
         current, best_score = self.initialize_bandits(n_games, budget, rounds)
         self.l_bests.append(current)
 
@@ -67,6 +83,8 @@ class Ntbea:
 
         iteration = 0
         while iteration < self.n_iterations:
+            if self.verbose:
+                print("Iteration: " + str(iteration))
             if self.do_str_debug:
                 self.str_debug += "Iteration: " + str(iteration) + "\n"
             l_neighbours = self.get_neighbours(current)
@@ -107,6 +125,17 @@ class Ntbea:
         best_neighbour = self.get_best_neighbour_final(l_neighbours)
 
         return best_neighbour
+
+    def evaluate(self, individual: List[int], n_games: int, budget: float, rounds: int) -> float:
+        """Evaluates the given individual and returns the score."""
+        params = []
+        for i in range(self.n_parameters):
+            params.append(self.parameters_values[i][individual[i]])
+
+        player = None
+        if self.algorithm == "oe":
+            player = OnlineEvolutionPlayer(self.algorithm_heuristic, int(params[0]), params[1], params[2])
+        return self.fitness.evaluate(player, n_games, budget, rounds)
 
     def evaluate_individual(self, individual, n_games, budget, rounds):
         score = self.evaluate(individual, n_games, budget, rounds)
@@ -156,13 +185,6 @@ class Ntbea:
                 element2 = individual[j]
                 self.bandits2D[k].update(element1, element2, score)
                 k += 1
-
-    def evaluate(self, individual: List[int], n_games: int, budget: float, rounds: int) -> float:
-        """Evaluates the given individual and returns the score."""
-        parameters = []
-        for i in range(self.n_parameters):
-            parameters.append(self.parameters_values[i][individual[i]])
-        return self.fitness.evaluate(parameters, n_games, budget, rounds)
 
     def get_neighbours(self, current: List[int]) -> List[List[int]]:
         """Returns a list of neighbours of the given individual."""
