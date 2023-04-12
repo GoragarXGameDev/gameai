@@ -137,6 +137,7 @@ if __name__ == '__main__':
     print("Player1        : {}".format(player1_name))
     print("Player2        : {}".format(player2_name))
     print("Number of games: {}".format(n_games))
+    print("Budget         : {}".format(budget))
 
     wins1 = 0
     wins2 = 0

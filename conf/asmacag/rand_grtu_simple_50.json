@@ -1,0 +1,12 @@
+{
+  "game_name": "Asmacag",
+  "n_games": 100,
+  "budget": 5.0,
+  "rounds": 100,
+  "verbose": false,
+  "enforce_time": true,
+  "heuristic_name": "Simple",
+  "player1_name": "Random",
+  "player2_name": "GreedyTurn",
+  "result_file": "out/rand_grtu_simple_05.json"
+}
