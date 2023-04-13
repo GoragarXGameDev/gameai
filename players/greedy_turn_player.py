@@ -10,17 +10,18 @@ class GreedyTurnPlayer(Player):
         """Player class implemented for Greedy Turn players."""
         super().__init__()
         self.heuristic = heuristic
+        self.best_reward = -math.inf
         self.turn = []
 
 # region Methods
     def think(self, observation: 'Observation', forward_model: 'ForwardModel', budget: float) -> None:
         """Computes a list of action for a complete turn using the Greedy Turn algorithm and sets it as the turn."""
         self.turn.clear()
+        self.best_reward = -math.inf
         
         t0 = time.time()
         root = GreedyTurnNode(observation, self.heuristic, None)
-        best_reward = -math.inf
-        self.run_nodes(root, forward_model, budget, best_reward, 0, t0)
+        self.run_nodes(root, forward_model, budget, 0, t0)
 
     def get_action(self, index: int) -> 'Action':
         """Returns the next action in the turn."""
@@ -28,7 +29,7 @@ class GreedyTurnPlayer(Player):
             return self.turn[index]
         return None
         
-    def run_nodes(self, node: 'GreedyTurnNode', forward_model: 'ForwardModel', budget: float, best_reward: float, index: int, t0: time) -> None:
+    def run_nodes(self, node: 'GreedyTurnNode', forward_model: 'ForwardModel', budget: float, index: int, t0: time) -> None:
         if index != 0:
             self.visited_states[node.get_observation()] += 1
             self.forward_model_visits += 1
@@ -36,14 +37,14 @@ class GreedyTurnPlayer(Player):
         for child in node.extend(forward_model):
             if time.time() - t0 > budget:
                 return
-            if index == child.get_observation().get_game_parameters().get_action_points_per_turn() - 1:
+            if forward_model.is_turn_finished(child.get_observation()):
                 reward = self.heuristic.get_reward(child.get_observation())
-                if reward >= best_reward:
-                    best_reward = reward
+                if reward > self.best_reward:
+                    self.best_reward = reward
                     self.turn = child.get_path()
                 return
             else:
-                self.run_nodes(child, forward_model, budget, best_reward, index + 1, t0)
+                self.run_nodes(child, forward_model, budget, index + 1, t0)
 # endregion
 
 # region Override
