@@ -2,6 +2,9 @@ from collections import defaultdict
 from typing import List
 from games import Action, Observation, ForwardModel
 import random
+import math
+
+from heuristics.heuristic import Heuristic
 
 class TurnGenome:
     def __init__(self):
@@ -53,9 +56,10 @@ class TurnGenome:
             forward_model.step(observation, self.actions[i])
             visited_states[observation] += 1
         return actions_count
-
-    def mutate_at_random_index(self, observation: 'Observation', forward_model: 'ForwardModel', visited_states: defaultdict, verbose: bool = False) -> int:
-        """Mutates this genome at a random action of the turn while keeping the whole turn valid. Note that the'Observation'state is not preserved."""
+    
+    def mutate_at_random_index(self, observation: 'Observation', forward_model: 'ForwardModel', heuristic: 'Heuristic', rand_new_action: bool, \
+                                visited_states: defaultdict, verbose: bool = False) -> int:
+        """Mutates this genome at a random action of the turn while keeping the whole turn valid with a greedy policy. Note that the'Observation'state is not preserved."""
         mutation_index = random.randrange(len(self.actions))
         for i in range(len(self.actions)):
             if i == mutation_index:
@@ -64,11 +68,29 @@ class TurnGenome:
                 if not observation.is_action_valid(self.actions[i]):
                     if verbose:
                         print(f"mutate_at_random_index: action {self.actions[i]} is not valid, replacing with random action")
-                    self.actions[i] = observation.get_random_action()
+                    if rand_new_action:
+                        self.actions[i] = observation.get_random_action()
+                    else:
+                        self.actions[i] = self.get_new_valid_greedy_action(observation, forward_model, heuristic)
 
             forward_model.step(observation, self.actions[i])
             visited_states[observation] += 1
         return len(self.actions)
+    
+    def get_new_valid_greedy_action(self, observation: 'Observation', forward_model: 'ForwardModel', heuristic: 'Heuristic') -> 'Action':
+        """Returns a new valid action for the given observation with a greedy policy"""
+        best_reward = -math.inf
+        best_action = None
+        actions = observation.get_actions()
+        new_observation = observation.clone()
+        for action in actions:
+            observation.copy_into(new_observation)
+            forward_model.step(new_observation, action)
+            reward = heuristic.get_reward(new_observation)
+            if reward >= best_reward:
+                best_action = action
+                best_reward = reward
+        return best_action
 
     def clone(self) -> 'TurnGenome':
         """Returns a clone of this genome"""

@@ -14,7 +14,11 @@ class OnlineEvolutionPlayer(Player):
         self.mutation_rate = mutation_rate
         self.survival_rate = survival_rate
         self.heuristic = heuristic
+        self.random_new_valid_action = False
         self.turn = []
+
+    def set_random_new_valid_action(self, value = True):
+        self.random_new_valid_action = value
 
 
 # region Methods
@@ -62,12 +66,14 @@ class OnlineEvolutionPlayer(Player):
 
                 # crossover
                 observation.copy_into(new_observation)
-                self.forward_model_visits += killed_genome.crossover(population[parent_a_index], population[parent_b_index], new_observation, forward_model, self.visited_states)
+                self.forward_model_visits += killed_genome.\
+                    crossover(population[parent_a_index], population[parent_b_index], new_observation, forward_model, self.visited_states)
 
                 # mutate
                 if random.random() < self.mutation_rate:
                     observation.copy_into(new_observation)
-                    self.forward_model_visits += killed_genome.mutate_at_random_index(new_observation, forward_model, self.visited_states, self.verbose)
+                    self.forward_model_visits += killed_genome.\
+                        mutate_at_random_index(new_observation, forward_model, self.heuristic, self.random_new_valid_action, self.visited_states, self.verbose)
 
         # select the best genome to use for the turn
         self.turn = population[0].get_actions()
