@@ -81,7 +81,7 @@ def do_bbmcts(game: Game, budget: float, out_filename: str):
     do_mcts_style(game, budget, out_filename, "bb")
 
 
-def do_oe(game: Game, budget: float, out_filename: str):
+def do_oe(game: Game, budget: float, out_filename: str, oe_type: str):
     evaluator = GameEvaluator(game, SimpleHeuristic())
 
     c_value = 1.4
@@ -101,7 +101,7 @@ def do_oe(game: Game, budget: float, out_filename: str):
     ntbea = Ntbea(params, evaluator, c_value, n_neighbours, n_initializations)
     ntbea.set_cores(cores)
     ntbea.set_str_debug_on()
-    ntbea.set_algorithm("oe")
+    ntbea.set_algorithm(oe_type)
     ntbea.set_algorithm_heuristic(SimpleHeuristic())
     ntbea.set_verbose_on()
     best_params = ntbea.run(n_games, budget, n_iterations, rounds)
@@ -174,8 +174,10 @@ if __name__ == '__main__':
         forward_model = HeroAcademyForwardModel()
         game = HeroAcademyGame(parameters, forward_model)
 
-    if algorithm == "oe":
-        do_oe(game, budget, out_filename)
+    if algorithm == "oerandom":
+        do_oe(game, budget, out_filename, "oerandom")
+    elif algorithm == "oegreedy":
+        do_oe(game, budget, out_filename, "oegreedy")
     elif algorithm == "mcts":
         do_mcts(game, budget, out_filename)
     elif algorithm == "mctsfull":
