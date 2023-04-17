@@ -136,8 +136,11 @@ class Ntbea:
             params.append(self.parameters_values[i][individual[i]])
 
         player = None
-        if self.algorithm == "oe":
+        if self.algorithm == "oerandom":
             player = OnlineEvolutionPlayer(self.algorithm_heuristic, int(params[0]), params[1], params[2])
+        elif self.algorithm == "oegreedy":
+            player = OnlineEvolutionPlayer(self.algorithm_heuristic, int(params[0]), params[1], params[2])
+            player.set_random_new_valid_action(False) # greedy
         elif self.algorithm == "ntboe":
             dimensions = [38, 38, 38]
             heuristic = SimpleHeuristic()
