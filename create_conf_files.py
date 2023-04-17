@@ -1,81 +1,16 @@
 import json
+from conf.players_config import *
 
-
-def get_onlineevolution_conf(game: str, budget: int) -> dict:
-    if game == 'Asmacag':
-        if budget == 0.5:
-            return {
-                "population_size": 150,
-                "mutation_rate": 0.4,
-                "survival_rate": 0.5
-            }
-        elif budget == 1:
-            return {
-                "population_size": 150,
-                "mutation_rate": 0.2,
-                "survival_rate": 0.8
-            }
-        elif budget == 3:
-            return {
-                "population_size": 200,
-                "mutation_rate": 0.3,
-                "survival_rate": 0.5
-            }
-        elif budget == 5:
-            return {
-                "population_size": 250,
-                "mutation_rate": 0.5,
-                "survival_rate": 0.5
-            }
-    elif game == 'TankWar':
-        pass
-    elif game == 'HeroAcademy':
-        pass
-
-def get_onlineevolution_random_conf(game: str, budget: int) -> dict:
-    if game == 'Asmacag':
-        if budget == 0.5:
-            return {
-                "population_size": 150,
-                "mutation_rate": 0.4,
-                "survival_rate": 0.5,
-                "random_new_valid_action": True
-            }
-        elif budget == 1:
-            return {
-                "population_size": 150,
-                "mutation_rate": 0.2,
-                "survival_rate": 0.8,
-                "random_new_valid_action": True
-            }
-        elif budget == 3:
-            return {
-                "population_size": 200,
-                "mutation_rate": 0.3,
-                "survival_rate": 0.5,
-                "random_new_valid_action": True
-            }
-        elif budget == 5:
-            return {
-                "population_size": 250,
-                "mutation_rate": 0.5,
-                "survival_rate": 0.5,
-                "random_new_valid_action": True
-            }
-    elif game == 'TankWar':
-        pass
-    elif game == 'HeroAcademy':
-        pass
 
 if __name__ == '__main__':
     budgets = [0.5, 1, 3, 5]
     #players = ['GreedyAction', 'GreedyTurn', 'MontecarloTreeSearch', 'MontecarloTreeSearch_Full', 'BridgeBurningMontecarloTreeSearch', 'NonExploringMontecarloTreeSearch', \
     #            'NTupleBanditOnlineEvolution', 'OnlineEvolution', 'OnlineEvolution_Random', 'Random']
     #players_code = ['grac', 'grtu', 'mcts', 'mcts', 'mctsbb', 'mctsne', 'ntboe', 'oe', 'oe', 'rand']
-    players = ['GreedyAction', 'GreedyTurn', 'NonExploringMontecarloTreeSearch', 'OnlineEvolution', 'OnlineEvolution_Random', 'Random']
-    players_code = ['grac', 'grtu', 'mctsne', 'oe', 'oe', 'rand']
+    players = ['GreedyAction', 'GreedyTurn', 'NonExploringMontecarloTreeSearch', 'Random']
+    players_code = ['grac', 'grtu', 'mctsne', 'rand']
     non_config = ['Random', 'GreedyAction', 'GreedyTurn', 'NonExploringMontecarloTreeSearch']
-    games = ['Asmacag']#, 'TankWar', 'HeroAcademy']
+    games = ['Asmacag', 'TankWar', 'HeroAcademy']
 
     for game in games:
         for buget in budgets:
@@ -110,8 +45,8 @@ if __name__ == '__main__':
                         player2_str_conf = "_".join(str(int(val)) if isinstance(val, bool) else str(val).replace('.', '') for val in p_conf.values())
 
                     # Out file configuration
-                    out = f"out/{game.lower()}_"
-                    filename = f"conf/{game.lower()}_tuned/"
+                    out = f"out/{game.lower()}/"
+                    filename = f"conf/{game.lower()}/"
                     simple_conf = f"{players_code[i]}_{players_code[j]}_simple_100_{buget if buget != 0.5 else '05'}"
                     out += simple_conf
                     filename += simple_conf
