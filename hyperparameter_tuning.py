@@ -2,6 +2,7 @@ import math
 from sys import argv
 
 from joblib import Parallel, delayed
+import multiprocessing as mp
 
 from games import Game
 from games.asmacag import AsmacagGameParameters, AsmacagForwardModel, AsmacagGame
@@ -31,29 +32,39 @@ def evaluate_bbmcts(param_c: float, evaluator: GameEvaluator, n_games: int, budg
     return param_c, score
 
 
-def do_mcts_style(game: Game, budget: float, out_filename: str, mcts_type: str):
+def do_mcts_style(game: Game, budget: float, out_filename: str, mcts_type: str, cores: int):
     evaluator = GameEvaluator(game, SimpleHeuristic())
     params_c = [round(0.35 + i*0.35, 2) for i in range(30)]
     n_games = 60
     rounds = 100
-    cores = 8
 
-    results = None
-    if mcts_type == "vanilla":
-        results = Parallel(n_jobs=cores)(
-            delayed(evaluate_mcts)(c, evaluator, n_games, budget, rounds)
-            for c in params_c
-        )
-    elif mcts_type == "full":
-        results = Parallel(n_jobs=cores)(
-            delayed(evaluate_mctsfull)(c, evaluator, n_games, budget, rounds)
-            for c in params_c
-        )
-    elif mcts_type == "bb":
-        results = Parallel(n_jobs=cores)(
-            delayed(evaluate_bbmcts)(c, evaluator, n_games, budget, rounds)
-            for c in params_c
-        )
+    results = []
+    if cores == 1:
+        for c in params_c:
+            score = 0
+            if mcts_type == "vanilla":
+                score = evaluate_mcts(c, evaluator, n_games, budget, rounds)
+            elif mcts_type == "full":
+                score = evaluate_mctsfull(c, evaluator, n_games, budget, rounds)
+            elif mcts_type == "bb":
+                score = evaluate_bbmcts(c, evaluator, n_games, budget, rounds)
+            results.append([c, score])
+    else:
+        if mcts_type == "vanilla":
+            results = Parallel(n_jobs=cores)(
+                delayed(evaluate_mcts)(c, evaluator, n_games, budget, rounds)
+                for c in params_c
+            )
+        elif mcts_type == "full":
+            results = Parallel(n_jobs=cores)(
+                delayed(evaluate_mctsfull)(c, evaluator, n_games, budget, rounds)
+                for c in params_c
+            )
+        elif mcts_type == "bb":
+            results = Parallel(n_jobs=cores)(
+                delayed(evaluate_bbmcts)(c, evaluator, n_games, budget, rounds)
+                for c in params_c
+            )
 
     best_c = None
     best_score = -math.inf
@@ -69,19 +80,19 @@ def do_mcts_style(game: Game, budget: float, out_filename: str, mcts_type: str):
         f.write(out_str + " \n")
 
 
-def do_mcts(game: Game, budget: float, out_filename: str):
-    do_mcts_style(game, budget, out_filename, "vanilla")
+def do_mcts(game: Game, budget: float, out_filename: str, cores: int):
+    do_mcts_style(game, budget, out_filename, "vanilla", cores)
 
 
-def do_mcts_full(game: Game, budget: float, out_filename: str):
-    do_mcts_style(game, budget, out_filename, "full")
+def do_mcts_full(game: Game, budget: float, out_filename: str, cores: int):
+    do_mcts_style(game, budget, out_filename, "full", cores)
 
 
-def do_bbmcts(game: Game, budget: float, out_filename: str):
-    do_mcts_style(game, budget, out_filename, "bb")
+def do_bbmcts(game: Game, budget: float, out_filename: str, cores: int):
+    do_mcts_style(game, budget, out_filename, "bb", cores)
 
 
-def do_oe(game: Game, budget: float, out_filename: str, oe_type: str):
+def do_oe(game: Game, budget: float, out_filename: str, oe_type: str, cores:int):
     evaluator = GameEvaluator(game, SimpleHeuristic())
 
     c_value = 1.4
@@ -95,8 +106,6 @@ def do_oe(game: Game, budget: float, out_filename: str, oe_type: str):
     param_mutation_rate = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
     param_survival_rate = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
     params = [param_population_size, param_mutation_rate, param_survival_rate]
-
-    cores = 8
 
     ntbea = Ntbea(params, evaluator, c_value, n_neighbours, n_initializations)
     ntbea.set_cores(cores)
@@ -116,7 +125,7 @@ def do_oe(game: Game, budget: float, out_filename: str, oe_type: str):
         f.write(out_str + " \n")
 
 
-def do_ntboe(game: Game, budget: float, out_filename: str):
+def do_ntboe(game: Game, budget: float, out_filename: str, cores: int):
     pass
     evaluator = GameEvaluator(game, SimpleHeuristic())
 
@@ -132,8 +141,6 @@ def do_ntboe(game: Game, budget: float, out_filename: str):
     param_mutation_rate = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
     param_n_initialization = [50 + i*50 for i in range(10)]
     params = [param_c_value, param_n_neighbours, param_mutation_rate, param_n_initialization]
-
-    cores = 8
 
     ntbea = Ntbea(params, evaluator, c_value, n_neighbours, n_initializations)
     ntbea.set_cores(cores)
@@ -154,10 +161,12 @@ def do_ntboe(game: Game, budget: float, out_filename: str):
         f.write(out_str + " \n")
 
 
-if __name__ == '__main__':
-    game_name = argv[1]
-    algorithm = argv[2]
-    budget = float(argv[3])
+def run_one(l_params: list):
+    game_name = l_params[0]
+    algorithm = l_params[1]
+    budget = l_params[2]
+    cores = l_params[3]
+
     out_filename = "out/hyper_" + game_name + "_" + algorithm + "_" + str(budget) + ".txt"
 
     game = None
@@ -175,14 +184,52 @@ if __name__ == '__main__':
         game = HeroAcademyGame(parameters, forward_model)
 
     if algorithm == "oerandom":
-        do_oe(game, budget, out_filename, "oerandom")
+        do_oe(game, budget, out_filename, "oerandom", cores)
     elif algorithm == "oegreedy":
-        do_oe(game, budget, out_filename, "oegreedy")
+        do_oe(game, budget, out_filename, "oegreedy", cores)
     elif algorithm == "mcts":
-        do_mcts(game, budget, out_filename)
+        do_mcts(game, budget, out_filename, cores)
     elif algorithm == "mctsfull":
-        do_mcts_full(game, budget, out_filename)
+        do_mcts_full(game, budget, out_filename, cores)
     elif algorithm == "bbmcts":
-        do_bbmcts(game, budget, out_filename)
+        do_bbmcts(game, budget, out_filename, cores)
     elif algorithm == "ntboe":
-        do_ntboe(game, budget, out_filename)
+        do_ntboe(game, budget, out_filename, cores)
+
+
+def run_many():
+    runs = [
+        ["asmacag", "mcts", 0.1, 1],
+        ["asmacag", "mctsfull", 0.1, 1],
+        ["asmacag", "bbmcts", 0.1, 1]
+
+
+        # ["heroacademy", "mcts", 0.5, 1],
+        # ["heroacademy", "mcts", 1.0, 1],
+        # ["heroacademy", "mcts", 3.0, 1],
+        # ["heroacademy", "mcts", 5.0, 1],
+        # ["heroacademy", "mctsfull", 0.5, 1],
+        # ["heroacademy", "mctsfull", 1.0, 1],
+        # ["heroacademy", "mctsfull", 3.0, 1],
+        # ["heroacademy", "mctsfull", 5.0, 1],
+        # ["heroacademy", "bbmcts", 0.5, 1],
+        # ["heroacademy", "bbmcts", 1.0, 1],
+        # ["heroacademy", "bbmcts", 3.0, 1],
+        # ["heroacademy", "bbmcts", 5.0, 1]
+    ]
+    cores = min(mp.cpu_count()-2, len(runs))
+    pool = mp.Pool(cores)
+
+    _ = pool.map(run_one, runs)
+    pool.close()
+
+
+if __name__ == '__main__':
+    #game_name = argv[1]
+    #algorithm = argv[2]
+    #budget = float(argv[3])
+    #cores = int(argv[4])
+    #run_one([game_name, algorithm, budget, cores])
+
+    run_many()
+
