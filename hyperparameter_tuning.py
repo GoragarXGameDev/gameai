@@ -70,12 +70,12 @@ def do_mcts_style(game: Game, budget: float, out_filename: str, mcts_type: str, 
     best_score = -math.inf
     out_str = ""
     for param_c, score in results:
-        if score >= best_score:
-            best_score = score
-            best_c = param_c
+        # if score >= best_score:
+        #     best_score = score
+        #     best_c = param_c
         out_str += str(param_c) + "," + str(score) + " \n"
 
-    out_str += "Best paramameters: " + str(best_c)
+    #out_str += "Best paramameters: " + str(best_c)
     with open(out_filename, "w") as f:
         f.write(out_str + " \n")
 
