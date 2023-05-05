@@ -36,8 +36,10 @@ def get_player(game: str, player_name: str, heuristic: 'Heuristic', conf: dict =
         return player
     if player_name == 'MontecarloTreeSearchPlayer':
         full_rollout_on = conf.pop('full_rollout_on', False)
+        print(full_rollout_on)
         player = eval(player_name)(heuristic, **conf)
-        player.set_full_rollout_on(full_rollout_on)
+        if full_rollout_on:
+            player.set_full_rollout_on()
         return player
     if player_name == 'NTupleBanditOnlineEvolutionPlayer':
         conf['fitness'] = get_fitness(game, heuristic)
