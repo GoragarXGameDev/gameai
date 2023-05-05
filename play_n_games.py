@@ -33,14 +33,11 @@ def get_player(game: str, player_name: str, heuristic: 'Heuristic', conf: dict =
         random_new_valid_action = conf.pop('random_new_valid_action', False)
         player = eval(player_name)(heuristic, **conf)
         player.set_random_new_valid_action(random_new_valid_action)
-        print('random_new_valid_action: ' + str(random_new_valid_action))
-        print(player.random_new_valid_action)
         return player
     if player_name == 'MontecarloTreeSearchPlayer':
         full_rollout_on = conf.pop('full_rollout_on', False)
         player = eval(player_name)(heuristic, **conf)
-        if full_rollout_on:
-            player.set_full_rollout_on(full_rollout_on)
+        player.set_full_rollout_on(full_rollout_on)
         return player
     if player_name == 'NTupleBanditOnlineEvolutionPlayer':
         conf['fitness'] = get_fitness(game, heuristic)

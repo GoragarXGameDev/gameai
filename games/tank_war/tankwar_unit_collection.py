@@ -60,6 +60,16 @@ class TankWarUnitCollection:
         return [unit for unit in self.units if unit.get_unit_type() == TankWarUnitType.TANK or \
                 (unit.get_unit_type() == TankWarUnitType.TILE and unit.get_pos() not in self.get_recyclers_positions())]
     
+    def get_tank_and_available_tiles_positions(self) -> List['TankWarUnit']:
+        """Get all tanks and tiles from the collection."""
+        positions = []
+        for unit in self.units:
+            if unit.get_unit_type() == TankWarUnitType.TANK or \
+                (unit.get_unit_type() == TankWarUnitType.TILE and unit.get_pos() not in self.get_recyclers_positions()) \
+                and unit.pos not in positions:
+                positions.append(unit.pos)
+        return positions
+    
     def get_tank_units(self) -> List['TankWarUnit']:
         """Get all tanks and tiles from the collection."""
         return [unit for unit in self.units if unit.get_unit_type() == TankWarUnitType.TANK]
@@ -95,7 +105,11 @@ class TankWarUnitCollection:
 
     def get_tanks_positions(self) -> List[Tuple[int, int]]:
         """Get all tanks positions."""
-        return [unit.pos for unit in self.units if unit.get_unit_type() == TankWarUnitType.TANK]
+        positions = []
+        for unit in self.units:
+            if unit.get_unit_type() == TankWarUnitType.TANK and unit.pos not in positions:
+                positions.append(unit.pos)
+        return positions
 
     def get_recyclers_positions(self) -> List[Tuple[int, int]]:
         """Get all recyclers positions."""

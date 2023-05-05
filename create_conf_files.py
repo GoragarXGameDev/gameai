@@ -4,11 +4,9 @@ from conf.players_config import *
 
 if __name__ == '__main__':
     budgets = [0.5, 1, 3, 5]
-    #players = ['GreedyAction', 'GreedyTurn', 'MontecarloTreeSearch', 'MontecarloTreeSearch_Full', 'BridgeBurningMontecarloTreeSearch', 'NonExploringMontecarloTreeSearch', \
-    #            'NTupleBanditOnlineEvolution', 'OnlineEvolution', 'OnlineEvolution_Random', 'Random']
-    #players_code = ['grac', 'grtu', 'mcts', 'mcts', 'mctsbb', 'mctsne', 'ntboe', 'oe', 'oe', 'rand']
-    players = ['GreedyAction', 'GreedyTurn', 'NonExploringMontecarloTreeSearch', 'Random']
-    players_code = ['grac', 'grtu', 'mctsne', 'rand']
+    players = ['GreedyAction', 'GreedyTurn', 'MontecarloTreeSearch', 'MontecarloTreeSearch_Full', 'BridgeBurningMontecarloTreeSearch', 'NonExploringMontecarloTreeSearch', \
+                'NTupleBanditOnlineEvolution', 'OnlineEvolution', 'OnlineEvolution_Random', 'Random']
+    players_code = ['grac', 'grtu', 'mcts', 'mcts', 'mctsbb', 'mctsne', 'ntboe', 'oe', 'oe', 'rand']
     non_config = ['Random', 'GreedyAction', 'GreedyTurn', 'NonExploringMontecarloTreeSearch']
     games = ['Asmacag', 'TankWar', 'HeroAcademy']
 
@@ -16,6 +14,9 @@ if __name__ == '__main__':
         for buget in budgets:
             for i in range(len(players)):
                 for j in range(i + 1, len(players)):
+                    if (players[i] in non_config and players[j] in non_config) or (players[i] == 'NTupleBanditOnlineEvolution' or players[j] == 'NTupleBanditOnlineEvolution'):
+                        continue
+
                     # Basic configuration
                     conf = {
                         "game_name": game,
@@ -32,7 +33,7 @@ if __name__ == '__main__':
                     conf["player1_name"] = player.replace('_Random', '').replace('_Full', '')
                     player1_str_conf = None
                     if player not in non_config:
-                        p_conf = eval('get_' + player.lower() + '_conf')(game, buget)
+                        p_conf = eval('get_' + player.lower() + '_conf')(buget)
                         conf["player1_config"] = p_conf
                         player1_str_conf = "_".join(str(int(val)) if isinstance(val, bool) else str(val).replace('.', '') for val in p_conf.values())
     
@@ -40,7 +41,7 @@ if __name__ == '__main__':
                     conf["player2_name"] = players[j].replace('_Random', '').replace('_Full', '')
                     player2_str_conf = None
                     if players[j] not in non_config:
-                        p_conf = eval('get_' + players[j].lower() + '_conf')(game, buget)
+                        p_conf = eval('get_' + players[j].lower() + '_conf')(buget)
                         conf["player2_config"] = p_conf
                         player2_str_conf = "_".join(str(int(val)) if isinstance(val, bool) else str(val).replace('.', '') for val in p_conf.values())
 

@@ -7,4 +7,4 @@ def play_game(game_conf: str):
 
 if __name__ == "__main__":
     conf_files = *map(str, Path("conf").rglob("*.json")),
-    Parallel(n_jobs=6)(delayed(play_game)(i) for i in conf_files)
+    Parallel(n_jobs=6, backend='multiprocessing')(delayed(play_game)(i) for i in conf_files if 'asmacag' not in i)

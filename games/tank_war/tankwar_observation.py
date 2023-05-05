@@ -76,23 +76,21 @@ class TankWarObservation(Observation):
         units = self.get_current_player_units()
 
         if self.get_current_player_resources() >= self.game_parameters.resources_count_to_build:
-            available_units = units.get_tank_and_available_tiles_units()
+            available_positions = units.get_tank_and_available_tiles_positions()
         else:
-            available_units = units.get_tank_units()
+            available_positions = units.get_tanks_positions()
 
-        for unit in available_units:
-            unit_pos = deepcopy(unit.pos)
-            if unit.unit_type == TankWarUnitType.TANK:
+        for pos in available_positions:
+            unit_pos = deepcopy(pos)
+            if unit_pos in units.get_tanks_positions():
                 for (x_offset, y_offset) in self.game_parameters.tank_possible_moves:
                     destination = (unit_pos[0] + x_offset, unit_pos[1] + y_offset)
                     if not self.pos_out_of_bounds(destination):
-                        actions.append(TankWarAction(unit.clone(), destination))
-            else:
-                if unit.pos not in units.get_tanks_positions():
-                    actions.append(TankWarAction(TankWarUnit(TankWarUnitType.TANK, unit_pos)))
-                    actions.append(TankWarAction(TankWarUnit(TankWarUnitType.RECYCLER, unit_pos)))
-                elif unit.pos in units.get_tanks_positions():
-                    actions.append(TankWarAction(TankWarUnit(TankWarUnitType.TANK, unit_pos)))
+                        actions.append(TankWarAction(units.get_tank_in_position(unit_pos).clone(), destination))
+                actions.append(TankWarAction(TankWarUnit(TankWarUnitType.TANK, unit_pos)))
+            elif unit_pos not in units.get_tanks_positions() and unit_pos not in units.get_recyclers_positions():
+                actions.append(TankWarAction(TankWarUnit(TankWarUnitType.TANK, unit_pos)))
+                actions.append(TankWarAction(TankWarUnit(TankWarUnitType.RECYCLER, unit_pos)))
         return actions
 
     def get_random_action(self) -> 'TankWarAction':

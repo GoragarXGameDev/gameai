@@ -5,7 +5,7 @@ class TankWarGameParameters(GameParameters):
     """Class that holds all the game parameters."""
     
     def __init__(self,
-            board_size=20,
+            board_size=10,
             init_tank_pos=[(-1, 0), (0, 1), (1, 0)],
             tank_possible_moves=[(-1, 0), (0, 1), (1, 0), (0, -1)],
             init_trash_count=10,
