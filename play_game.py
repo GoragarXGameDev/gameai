@@ -27,16 +27,16 @@ if __name__ == '__main__':
     save_name = "out/sample_output.txt"         # where the game is going to be saved, can be None
 
     # ASMACAG parameters
-    # parameters = AsmacagGameParameters() 
-    # forward_model = AsmacagForwardModel()
-    # fitness_asmacag = AsmacagFitnessEvaluator(ntboe_heuristic)
-    # game = AsmacagGame(parameters, forward_model)
+    parameters = AsmacagGameParameters()
+    forward_model = AsmacagForwardModel()
+    fitness_asmacag = AsmacagFitnessEvaluator(ntboe_heuristic)
+    game = AsmacagGame(parameters, forward_model)
 
     # Hero Academy parameters
-    parameters = HeroAcademyGameParameters() 
-    forward_model = HeroAcademyForwardModel()
-    fitness_heroac = HeroAcademyFitnessEvaluator(ntboe_heuristic)
-    game = HeroAcademyGame(parameters, forward_model)
+    # parameters = HeroAcademyGameParameters()
+    # forward_model = HeroAcademyForwardModel()
+    # fitness_heroac = HeroAcademyFitnessEvaluator(ntboe_heuristic)
+    # game = HeroAcademyGame(parameters, forward_model)
 
     # Tank war parameters
     # parameters = TankWarGameParameters() 
@@ -62,7 +62,7 @@ if __name__ == '__main__':
     # Tank war players
     # ntboe_tankwar = NTupleBanditOnlineEvolutionPlayer(ntboe_heuristic, fitness_tankwar, dimensions, 8, 5, 0.55, 1000)
     
-    players = [mcts, nemcts]                       # list of players
+    players = [random, greedy]                       # list of players
 
     game.set_save_file(save_name)
 

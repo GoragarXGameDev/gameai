@@ -13,6 +13,7 @@ def actualize_points(points, winner, i1, i2):
 
 
 def play_tournament(l_players, game, budget, verbose, enforce_time, n_matches):
+    rounds = 1
     points = [0, 0, 0, 0, 0]
     i1 = 0
     for p1 in l_players:
@@ -21,7 +22,7 @@ def play_tournament(l_players, game, budget, verbose, enforce_time, n_matches):
             if p1 != p2:
                 print("Playing ", str(p1), " vs ", str(p2))
                 for m in range(int(n_matches/2)):
-                    game.run(p1, p2, budget, verbose, enforce_time)
+                    game.run(p1, p2, budget, rounds, verbose, enforce_time)
                     actualize_points(points, game.get_winner(), i1, i2)
                 print(points)
             i2 += 1
