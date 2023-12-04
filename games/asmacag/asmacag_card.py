@@ -34,7 +34,7 @@ class AsmacagCard:
         return f"{self.card_type!s}{f' {self.number}' if self.card_type == AsmacagCardType.NUMBER else ''!s}"
 
     def __eq__(self, other):
-        return isinstance(other, AsmacagCard) and other.card_type == other.card_type and self.number == other.number
+        return isinstance(other, AsmacagCard) and self.card_type == other.card_type and self.number == other.number
 
     def __hash__(self):
         # note that this may not generate a unique hash for parameter sets that are not the default ones
