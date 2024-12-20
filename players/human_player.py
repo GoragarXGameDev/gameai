@@ -18,6 +18,9 @@ class HumanPlayer(Player):
             selection = int(input("Select an action: "))
 
         return actions[selection]
+
+    def get_action(self, index:int):
+        pass
 # endregion
 
 # region Override
